@@ -1,60 +1,180 @@
-# Larasonic 🚀
+# 🎓 PhilexScholar | Your Digital Scholarship Hub
 
-![Larasonic](public/images/og.webp)
+<div align="center">
 
-Larasonic is a modern, open-source SaaS starter kit with Laravel, Vue.js, TailwindCSS, and Inertia.
+![Status](https://img.shields.io/badge/status-in%20development-orange)
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Laravel](https://img.shields.io/badge/Laravel-v10.x-red)
+![Vue](https://img.shields.io/badge/Vue.js-v3.x-green)
+![Inertia](https://img.shields.io/badge/Inertia.js-latest-purple)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v3.x-blue)
+![SQLite](https://img.shields.io/badge/SQLite-v3-blue)
 
-![GitHub Repo stars](https://img.shields.io/github/stars/pushpak1300/Larasonic?style=for-the-badge) [![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)](./LICENSE.md) [![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/pushpak1300)
+</div>
 
-## ✨ Features
+> 🌟 Transforming scholarship management for the Philex Mines community through innovative digital solutions
 
-- ⚡ 10x Dev Experience
-- 🐳 Production Docker Ready
-- 🔑 Advanced Authentication
-- 💳 Payment Ready
-- 🌐 API Ready
-- 🎨 Customizable UI
-- 🧠 AI Integration Ready
-- 📊 FilamentPHP Admin
-- ✨ Evolving Features
+## 📋 Table of Contents
+<details>
+<summary>Click to expand</summary>
 
-## Quick Start
+- [✨ Overview](#-overview)
+- [🎯 Key Features](#-key-features)
+- [🏗 Architecture](#-architecture)
+- [🛠 Tech Stack](#-tech-stack)
+- [🚀 Getting Started](#-getting-started)
+- [📚 Documentation](#-documentation)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
 
-```bash
-# Clone the repo
-git clone git@github.com:pushpak1300/Larasonic.git
-cd Larasonic
+</details>
 
-# Install dependencies
-docker run --rm \
-    -u "$(id -u):$(id -g)" \
-    -v "$(pwd):/var/www/html" \
-    -w /var/www/html \
-    laravelsail/php83-composer:latest \
-    composer install --ignore-platform-reqs
+## ✨ Overview
 
-# Setup environment
-cp .env.example .env
-./vendor/bin/sail up -d
-./vendor/bin/sail composer run setup
+PhilexScholar revolutionizes scholarship management with a modern, user-friendly platform built on the powerful VILT stack (Vue.js, Inertia.js, Laravel, TailwindCSS). Our system streamlines the entire scholarship process from application to disbursement.
+
+### 🎯 Key Features
+
+<details>
+<summary>👨‍🎓 For Students</summary>
+
+- **Smart Application Portal**
+  - Intuitive step-by-step forms
+  - Document upload system
+  - Real-time status tracking
+  - Automated notifications
+
+- **Student Dashboard**
+  - Application progress monitoring
+  - Document management
+  - Payment schedule tracking
+  - Direct communication channel
+</details>
+
+<details>
+<summary>👨‍💼 For Administrators</summary>
+
+- **Application Management**
+  - Bulk application processing
+  - Document verification system
+  - Automated eligibility checks
+
+- **Financial Management**
+  - Streamlined disbursement
+  - Payment tracking
+  - Financial reporting
+
+- **Program Administration**
+  - Dynamic eligibility criteria
+  - Custom workflow configuration
+  - Analytics dashboard
+</details>
+
+## 🏗 Architecture
+
+```mermaid
+graph TD
+    A[Vue.js Frontend] --> B[Inertia.js]
+    B --> C[Laravel Backend]
+    C --> D[SQLite Database]
+    C --> E[File Storage]
+    C --> F[Authentication]
 ```
 
-For detailed installation instructions and documentation, visit [docs.larasonic.com](https://docs.larasonic.com).
+### 💾 Data Structure
 
-## Hosting
+```
+📦 PhilexScholar
+ ┣ 📂 Database
+ ┃ ┣ 📜 Scholars
+ ┃ ┣ 📜 Applications
+ ┃ ┗ 📜 Payments
+ ┣ 📂 Storage
+ ┃ ┗ 📜 Documents
+ ┗ 📂 Authentication
+```
 
-Proudly hosted and sponsored by [Sevalla.com](https://sevalla.com/?ref=larasonic).
+## 🛠 Tech Stack
 
-## Security
+<details>
+<summary>Frontend Technologies</summary>
 
-Report vulnerabilities to pushpak1300@gmail.com
+- **Vue.js 3** - Progressive JavaScript framework
+- **Inertia.js** - Modern monolith architecture
+- **TailwindCSS** - Utility-first CSS framework
+</details>
 
-## License
+<details>
+<summary>Backend Technologies</summary>
 
-[MIT](https://opensource.org/licenses/MIT)
+- **Laravel 10** - PHP web framework
+- **SQLite** - Lightweight database
+- **Laravel Sanctum** - API authentication
+</details>
 
-## Screenshots
+## 🚀 Getting Started
 
-| ![Screenshot 4](https://github.com/user-attachments/assets/d7c4eaa9-b547-4952-8ade-4b0ae62aee0e) | ![Screenshot 2](https://github.com/user-attachments/assets/b2d5a28c-9b1b-40bb-82f0-fb9fa932165c) | ![Screenshot 3](https://github.com/user-attachments/assets/d8b15834-bcc2-4028-9d73-a0bb9983c6b7) |
-| :----------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------: |
-| ![Screenshot 1](https://github.com/user-attachments/assets/21c34465-a193-4373-9862-0843f11b957c) | ![Screenshot 5](https://github.com/user-attachments/assets/fba2d341-40c3-4244-8b02-82891c42f2d5) | ![Screenshot 6](https://github.com/user-attachments/assets/37ce7a37-121d-41b1-b3e6-09714cb5c884) |
+### Prerequisites
+```bash
+php >= 8.1
+composer
+npm
+sqlite3
+```
+
+### Installation
+```bash
+# Clone repository
+git clone https://github.com/your-repo/philexscholar.git
+
+# Install PHP dependencies
+composer install
+
+# Install Node dependencies
+npm install
+
+# Configure environment
+cp .env.example .env
+php artisan key:generate
+
+# Setup database
+php artisan migrate
+php artisan db:seed
+
+# Start development servers
+php artisan serve
+npm run dev
+```
+
+## 📚 Documentation
+
+- [Scholar's Guide](docs/scholar-guide.md)
+- [Administrator's Manual](docs/admin-guide.md)
+- [API Documentation](docs/api-docs.md)
+- [Development Guide](docs/dev-guide.md)
+
+## 🤝 Contributing
+
+We welcome contributions! Please check our [Contributing Guidelines](CONTRIBUTING.md).
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit changes
+4. Push to branch
+5. Open a Pull Request
+
+## 📄 License
+
+MIT License - See [LICENSE](LICENSE) file
+
+---
+
+<div align="center">
+  <p>Built with ❤️ by the Philex Mines Technology Team</p>
+  <p>
+    <a href="https://github.com/IT-CS-NC-Philex-Scholars">GitHub</a> ·
+    <a href="https://philexscholar.com">Website</a> ·
+    <a href="mailto:support@philexscholar.com">Support</a>
+  </p>
+</div>

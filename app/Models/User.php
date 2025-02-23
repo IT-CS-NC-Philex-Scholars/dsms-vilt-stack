@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotificationCollection;
-
+use Spatie\Permission\Traits\HasRoles;
 use function Illuminate\Events\queueable;
 
 /**
@@ -97,7 +97,7 @@ final class User extends Authenticatable implements FilamentUser, MustVerifyEmai
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-
+    use HasRoles;
     use HasProfilePhoto;
     use HasTeams  {
         ownedTeams as public ownedTeamsBase;

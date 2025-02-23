@@ -1,62 +1,49 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
-use DateTimeInterface;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-final class UserResource extends Resource
+class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
-
-    protected static ?string $navigationGroup = 'User Management';
-
-    protected static ?int $navigationSort = 1;
-
-    public static function getNavigationBadge(): string
-    {
-        /** @var int $count */
-        $count = self::getModel()::count();
-
-        return (string) $count;
-    }
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make()
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->required()
-                            ->maxLength(255)
-                            ->rules(['blasp_check'])
-                            ->placeholder('Enter full name'),
-                        Forms\Components\TextInput::make('email')
-                            ->email()
-                            ->required()
-                            ->unique(ignoreRecord: true)
-                            ->rules(['blasp_check'])
-                            ->maxLength(255)
-                            ->placeholder('email@example.com'),
-                        Forms\Components\TextInput::make('password')
-                            ->password()
-                            ->required()
-                            ->minLength(8)
-                            ->placeholder('Min. 8 characters'),
-                    ])
-                    ->columns(2),
+                Forms\Components\TextInput::make('name')
+                    ->required(),
+                Forms\Components\TextInput::make('email')
+                    ->email()
+                    ->required(),
+                Forms\Components\DateTimePicker::make('email_verified_at'),
+                Forms\Components\TextInput::make('password')
+                    ->password()
+                    ->required(),
+                Forms\Components\TextInput::make('current_team_id')
+                    ->numeric(),
+                Forms\Components\TextInput::make('profile_photo_path'),
+                Forms\Components\Textarea::make('two_factor_secret')
+                    ->columnSpanFull(),
+                Forms\Components\Textarea::make('two_factor_recovery_codes')
+                    ->columnSpanFull(),
+                Forms\Components\DateTimePicker::make('two_factor_confirmed_at'),
+                Forms\Components\TextInput::make('stripe_id'),
+                Forms\Components\TextInput::make('pm_type'),
+                Forms\Components\TextInput::make('pm_last_four'),
+                Forms\Components\DateTimePicker::make('trial_ends_at'),
             ]);
     }
 
@@ -65,55 +52,52 @@ final class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
-
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('email')
-                    ->searchable()
-                    ->sortable(),
-
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('email_verified_at')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('current_team_id')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('profile_photo_path')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-
                 Tables\Columns\TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('deleted_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('two_factor_confirmed_at')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('stripe_id')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('pm_type')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('pm_last_four')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('trial_ends_at')
+                    ->dateTime()
+                    ->sortable(),
             ])
             ->filters([
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from'),
-                        Forms\Components\DatePicker::make('created_until'),
-                    ])
-                    ->query(fn (Builder $query, array $data): Builder => $query
-                        ->when(
-                            $data['created_from'] ?? null,
-                            fn (Builder $query, mixed $date): Builder => $query->whereDate(
-                                'created_at',
-                                '>=',
-                                type($date)->as(DateTimeInterface::class)
-                            ),
-                        )
-                        ->when(
-                            $data['created_until'] ?? null,
-                            fn (Builder $query, mixed $date): Builder => $query->whereDate(
-                                'created_at',
-                                '<=',
-                                type($date)->as(DateTimeInterface::class)
-                            ),
-                        )),
+                //
             ])
             ->actions([
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -128,6 +112,8 @@ final class UserResource extends Resource
     {
         return [
             'index' => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

@@ -37,7 +37,7 @@ return new class extends Migration
                     $table->decimal('amount', 10, 2);
                     $table->json('requirements');
                     $table->date('application_deadline');
-                    $table->enum('status', ['active', 'inactive']);
+                    $table->enum('status', ['active', 'inactive', 'closed']);
                     $table->timestamps();
                     $table->softDeletes();
                 });
@@ -46,10 +46,10 @@ return new class extends Migration
                         $table->foreignId('scholar_id')->constrained()->onDelete('cascade');
                         $table->foreignId('scholarship_id')->constrained()->onDelete('cascade');
                         $table->string('document_type');
-                        $table->string('file_path');
+                        $table->string('file_path')->nullable(); // Make it nullable
                         $table->enum('status', ['pending', 'approved', 'rejected']);
                         $table->text('remarks')->nullable();
-                        $table->timestamp('submitted_at');
+                        $table->timestamp('submitted_at')->nullable();
                         $table->timestamp('reviewed_at')->nullable();
                         $table->timestamps();
                         $table->softDeletes();

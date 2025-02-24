@@ -1,13 +1,16 @@
-import UnheadVite from '@unhead/addons/vite'
-import vue from '@vitejs/plugin-vue'
-import laravel from 'laravel-vite-plugin'
-import { defineConfig } from 'vite'
+import UnheadVite from "@unhead/addons/vite";
+import vue from "@vitejs/plugin-vue";
+import laravel from "laravel-vite-plugin";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [
     laravel({
-      input: 'resources/js/app.js',
-      publicDirectory: 'public',
+      input: [
+        // "./vendor/tomatophp/filament-simple-theme/resources/css/theme.css",
+        "resources/js/app.js",
+      ],
+      publicDirectory: "public",
       refresh: true,
     }),
     vue({
@@ -22,10 +25,10 @@ export default defineConfig({
   ],
   server: {
     hmr: {
-      host: 'localhost',
+      host: "localhost",
     },
   },
   build: {
     minify: true,
   },
-})
+});

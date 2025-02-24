@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Requirement extends Model
 {
+
     use SoftDeletes;
 
         protected $fillable = [
@@ -29,8 +31,10 @@ class Requirement extends Model
             return $this->belongsTo(Scholar::class);
         }
 
-        public function scholarship()
+        public function scholarships()
         {
-            return $this->belongsTo(Scholarship::class);
+            return $this->belongsToMany(Scholarship::class, 'scholarship_requirement');
+                        // ->withPivot('is_mandatory', 'submission_order', 'description')
+                        // ->withTimestamps();
         }
 }

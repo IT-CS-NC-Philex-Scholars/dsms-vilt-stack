@@ -52,11 +52,25 @@ class Scholar extends Model
 
         public function scholarships()
         {
-            return $this->belongsToMany(Scholarship::class, 'requirements');
+            return $this->belongsToMany(Scholarship::class, 'scholar_scholarship')
+                        ->withPivot('status', 'start_date', 'end_date', 'remarks')
+                        ->withTimestamps();
         }
 
         public function getFullNameAttribute()
         {
             return $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
+        }
+
+        public function getCompletedRequirementsAttribute()
+        {
+            return $this->requirements()->whereHas('scholarships', function ($query){
+                    $query->where('status', 'active');
+            })
+            ->where('status', 'approved')->count();
+        }
+        public function getTotalRequirementsAttribute()
+        {
+            return $this->requirements()->count();
         }
 }

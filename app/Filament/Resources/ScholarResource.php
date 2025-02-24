@@ -2,17 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ScholarResource\Pages;
-use App\Filament\Resources\ScholarResource\RelationManagers;
-use App\Models\Scholar;
-use App\Models\School;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\School;
+use App\Models\Scholar;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\ScholarResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\ScholarResource\RelationManagers;
+use App\Filament\Resources\ScholarResource\RelationManagers\ScholarRequirementsRelationManager;
 
 class ScholarResource extends Resource
 {
@@ -317,7 +318,7 @@ class ScholarResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('full_name')
                     ->label('Scholar Name')
-                    ->searchable()
+                    ->searchable(['first_name', 'middle_name', 'last_name'])
                     ->sortable()
                     ->formatStateUsing(fn ($record) =>
                         "{$record->last_name}, {$record->first_name} {$record->middle_name}"),
@@ -383,7 +384,8 @@ class ScholarResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ScholarRequirementsRelationManager::class,
+            // ScholarRelationManager::class
         ];
     }
 
@@ -393,6 +395,7 @@ class ScholarResource extends Resource
             'index' => Pages\ListScholars::route('/'),
             'create' => Pages\CreateScholar::route('/create'),
             'edit' => Pages\EditScholar::route('/{record}/edit'),
+            ''
         ];
     }
 }

@@ -55,7 +55,7 @@ final class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-
+                // \TomatoPHP\FilamentSimpleTheme\FilamentSimpleThemePlugin::make(),
                 FilamentShieldPlugin::make(),
             ])
             ->authMiddleware([

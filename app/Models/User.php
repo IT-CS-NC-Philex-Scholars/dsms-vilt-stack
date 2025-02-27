@@ -133,6 +133,15 @@ final class User extends Authenticatable implements FilamentUser, MustVerifyEmai
         'trial_ends_at',
     ];
 
+    public static function boot(): void
+    {
+        parent::boot();
+        //assign the role scholar to new users
+        User::created(function (User $user) {
+            $user->assignRole('scholar');
+        });
+    }
+
     /**
      * Get the team that the invitation belongs to.
      *
@@ -156,10 +165,10 @@ final class User extends Authenticatable implements FilamentUser, MustVerifyEmai
     /**
      * Configure the panel access.
      */
-    public function canAccessPanel(Panel $panel): bool
-    {
-        return true;
-    }
+     public function canAccessPanel(Panel $panel): bool
+     {
+         return $this->hasRole('super_admin') || $this->hasRole('admin');
+     }
 
     protected static function booted(): void
     {
@@ -182,4 +191,27 @@ final class User extends Authenticatable implements FilamentUser, MustVerifyEmai
             'password' => 'hashed',
         ];
     }
+    /**
+         * Get the scholar associated with the user.
+         */
+        public function scholar()
+        {
+            return $this->hasOne(Scholar::class);
+        }
+
+        /**
+         * Get the application associated with the user.
+         */
+        public function application()
+        {
+            return $this->hasOne(Application::class);
+        }
+
+        /**
+         * Determine if the user is a scholar
+         */
+        public function isScholar()
+        {
+            return $this->hasRole('scholar');
+        }
 }

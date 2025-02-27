@@ -1,17 +1,31 @@
 <script setup>
-import FeaturesCard from '@/Components/FeaturesCard.vue'
-import PricingCard from '@/Components/PricingCard.vue'
-import Accordion from '@/Components/shadcn/ui/accordion/Accordion.vue'
-import AccordionContent from '@/Components/shadcn/ui/accordion/AccordionContent.vue'
-import AccordionItem from '@/Components/shadcn/ui/accordion/AccordionItem.vue'
-import AccordionTrigger from '@/Components/shadcn/ui/accordion/AccordionTrigger.vue'
-import Badge from '@/Components/shadcn/ui/badge/Badge.vue'
-import Button from '@/Components/shadcn/ui/button/Button.vue'
-import Terminal from '@/Components/Terminal.vue'
-import { useSeoMetaTags } from '@/Composables/useSeoMetaTags.js'
-import WebLayout from '@/Layouts/WebLayout.vue'
-import { Icon } from '@iconify/vue'
-import { Link } from '@inertiajs/vue3'
+import FeaturesCard from "@/Components/FeaturesCard.vue";
+import PricingCard from "@/Components/PricingCard.vue";
+import Accordion from "@/Components/shadcn/ui/accordion/Accordion.vue";
+import AccordionContent from "@/Components/shadcn/ui/accordion/AccordionContent.vue";
+import AccordionItem from "@/Components/shadcn/ui/accordion/AccordionItem.vue";
+import AccordionTrigger from "@/Components/shadcn/ui/accordion/AccordionTrigger.vue";
+import Badge from "@/Components/shadcn/ui/badge/Badge.vue";
+import Button from "@/Components/shadcn/ui/button/Button.vue";
+import Terminal from "@/Components/Terminal.vue";
+import { useSeoMetaTags } from "@/Composables/useSeoMetaTags.js";
+import WebLayout from "@/Layouts/WebLayout.vue";
+import { Icon } from "@iconify/vue";
+import { Link } from "@inertiajs/vue3";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/Components/shadcn/ui/card";
+import { ScrollArea } from "@/Components/shadcn/ui/scroll-area";
+import {
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Tabs,
+} from "@/Components/shadcn/ui/tabs";
 
 const props = defineProps({
   canLogin: {
@@ -24,101 +38,258 @@ const props = defineProps({
     type: Object,
     default: () => null,
   },
-})
+});
 
-useSeoMetaTags(props.seo)
+useSeoMetaTags(props.seo);
 
 const features = [
   {
-    icon: '🚀',
-    title: '10x Dev Experience',
-    description: 'Ship faster with opinionated Laravel Pint, maximum PHPStan level, and Rector for enhanced code quality and developer productivity.',
+    icon: "📝",
+    title: "Easy Application Process",
+    description:
+      "Streamlined scholarship application process with intuitive forms and document upload capabilities.",
   },
   {
-    icon: '🐳',
-    title: 'Production Docker Ready',
-    description: 'Optimized Docker images with Laravel Octane and Sail for lightning-fast development and deployment.',
+    icon: "🔍",
+    title: "Application Tracking",
+    description:
+      "Real-time tracking of application status, requirements completion, and approval stages.",
   },
   {
-    icon: '🔑',
-    title: 'Advanced Authentication',
-    description: 'Complete authentication system with social login, and role-based access control.',
+    icon: "📊",
+    title: "Progress Monitoring",
+    description:
+      "Comprehensive dashboard to monitor academic performance, requirements, and scholarship status.",
   },
   {
-    icon: '💳',
-    title: 'Payment Ready',
-    description: 'Integrated Laravel Cashier for subscription billing and payment processing so you can focus on building your product.',
+    icon: "📄",
+    title: "Document Management",
+    description:
+      "Secure storage and management of academic records, certificates, and other required documents.",
   },
   {
-    icon: '🌐',
-    title: 'API Ready',
-    description: 'RESTful API endpoints with Laravel Sanctum authentication and comprehensive documentation.',
+    icon: "📱",
+    title: "Communication Hub",
+    description:
+      "Integrated messaging system for updates, announcements, and direct communication with administrators.",
   },
   {
-    icon: '🎨',
-    title: 'Customizable UI',
-    description: 'Built with shadcn/ui components, making UI customization a breeze. Easily modify themes, styles, and components to match your brand.',
+    icon: "⚡",
+    title: "Quick Requirements Review",
+    description:
+      "Efficient system for reviewing and approving submitted requirements with automated notifications.",
   },
   {
-    icon: '🧠',
-    title: 'AI Integration Ready',
-    description: 'Pre-configured LLM integrations for OpenAI, Anthropic, and more. Build AI-powered features into your app with minimal setup.',
+    icon: "📈",
+    title: "Performance Analytics",
+    description:
+      "Detailed analytics and reporting tools for tracking scholar performance and program effectiveness.",
   },
   {
-    icon: '📊',
-    title: 'FilamentPHP Admin',
-    description: 'Beautiful admin panel powered by FilamentPHP with CRUD operations, charts, and detailed analytics.',
+    icon: "🔐",
+    title: "Secure Access",
+    description:
+      "Role-based access control ensuring data privacy and secure information handling.",
   },
   {
-    icon: '✨',
-    title: 'Evolving Features',
-    description: 'This is just the beginning. Regular updates bring new features, integrations, and improvements to supercharge your development.',
+    icon: "🎓",
+    title: "Academic Support",
+    description:
+      "Tools for monitoring academic progress and providing timely support to scholars.",
   },
-]
+];
 
-const pricingFeatures = [
-  'Production-ready Docker setup',
-  'Advanced authentication system',
-  'AI Integrations',
-  'Payment integration ready',
-  'API endpoints with Sanctum',
-  'Comprehensive documentation',
-]
-const sponsorLinks = {
-  github: 'https://github.com/sponsors/pushpak1300',
-  x: 'https://x.com/pushpak1300',
-}
+const systemFeatures = [
+  "Easy application submission",
+  "Real-time status tracking",
+  "Secure document management",
+  "Automated notifications",
+  "Performance monitoring",
+  "Communication tools",
+];
 
-const faqItems = [
+const faqCategories = [
   {
-    value: 'item-1',
-    title: 'Is Larasonic really free?',
-    content: 'Yes! Larasonic is completely free and open source under the MIT license. You can use it for personal or commercial projects without any restrictions. Feel free to star the repo for showing your intrest.',
+    id: "general",
+    icon: "lucide:info",
+    title: "General Information",
+    questions: [
+      {
+        question: "What types of scholarships are available?",
+        answer: "We offer several types of scholarships including:",
+        details: [
+          "Academic Excellence Scholarships",
+          "Financial Need-based Grants",
+          "Mining Community Development Scholarships",
+          "Special Skills and Talents Grants",
+        ],
+      },
+      {
+        question: "Who is eligible to apply?",
+        answer:
+          "Eligibility varies by program, but general requirements include:",
+        details: [
+          "Must be a resident of covered mining communities",
+          "Enrolled or planning to enroll in an accredited institution",
+          "Maintaining required academic standing",
+          "Demonstrated financial need",
+        ],
+      },
+    ],
   },
   {
-    value: 'item-2',
-    title: 'How can I contribute?',
-    content: 'You can contribute by submitting pull requests, reporting bugs, suggesting features, or helping with documentation. Every contribution is valuable!',
+    id: "application",
+    icon: "lucide:file-text",
+    title: "Application Process",
+    questions: [
+      {
+        question: "What documents do I need to prepare?",
+        answer: "Essential documents for application include:",
+        details: [
+          "Valid government ID",
+          "Latest grade reports/transcript",
+          "Proof of enrollment/admission",
+          "Family income certificate",
+          "Recommendation letters",
+          "Personal statement",
+        ],
+      },
+      {
+        question: "How long does the application process take?",
+        answer: "The typical timeline breaks down as follows:",
+        details: [
+          "Initial application review: 1-2 weeks",
+          "Document verification: 1 week",
+          "Committee evaluation: 2 weeks",
+          "Final decision: 1 week",
+          "Total process: Approximately 4-6 weeks",
+        ],
+      },
+    ],
   },
   {
-    value: 'item-3',
-    title: 'Why should I sponsor?',
-    content: 'Sponsoring helps ensure the project\'s long-term sustainability. Your support enables continued maintenance, new features, and improvements that benefit the entire community.',
+    id: "financial",
+    icon: "lucide:wallet",
+    title: "Financial Aspects",
+    questions: [
+      {
+        question: "How much financial support is provided?",
+        answer: "Scholarship amounts vary by program and level:",
+        details: [
+          "High School: Up to ₱30,000 per year",
+          "Undergraduate: Up to ₱50,000 per year",
+          "Additional allowances for books and supplies",
+          "Special grants for exceptional cases",
+        ],
+      },
+      {
+        question: "How are payments disbursed?",
+        answer: "Scholarship funds are released through:",
+        details: [
+          "Direct deposit to student account",
+          "Semestral disbursement schedule",
+          "Performance-based installments",
+          "Monitoring of fund utilization",
+        ],
+      },
+    ],
   },
-]
+  {
+    id: "maintenance",
+    icon: "lucide:award",
+    title: "Maintaining Your Scholarship",
+    questions: [
+      {
+        question: "What are the requirements to maintain my scholarship?",
+        answer: "To maintain your scholarship status, you need to:",
+        details: [
+          "Maintain minimum GPA requirements",
+          "Submit regular progress reports",
+          "Participate in community programs",
+          "Comply with attendance requirements",
+        ],
+      },
+      {
+        question: "Can my scholarship be renewed?",
+        answer: "Scholarship renewal depends on:",
+        details: [
+          "Academic performance",
+          "Compliance with program requirements",
+          "Available funding",
+          "Continued eligibility",
+        ],
+      },
+    ],
+  },
+];
+import { ref } from "vue";
 
-const githubUrl = 'https://github.com/pushpak1300/larasonic'
+const activeCategory = ref(faqCategories[0].id);
+const activeQuestion = ref(null);
+const applicationSteps = [
+  {
+    number: 1,
+    title: "Create Your Account",
+    description:
+      "Sign up and verify your email to access the application portal",
+    icon: "lucide:user-plus",
+    tips: [
+      "Use an email you check regularly",
+      "Create a strong password",
+      "Keep your login credentials secure",
+    ],
+  },
+  {
+    number: 2,
+    title: "Complete Your Profile",
+    description: "Fill in your personal and academic information",
+    icon: "lucide:pencil",
+    tips: [
+      "Have your basic information ready",
+      "Be accurate with your details",
+      "Double-check all entries",
+    ],
+  },
+  {
+    number: 3,
+    title: "Submit Requirements",
+    description: "Upload all necessary documents and forms",
+    icon: "lucide:file-plus",
+    tips: [
+      "Prepare documents in advance",
+      "Ensure clear, readable scans",
+      "Check file size limits",
+    ],
+  },
+  {
+    number: 4,
+    title: "Application Review",
+    description: "Wait for the evaluation of your application",
+    icon: "lucide:check-circle",
+    tips: [
+      "Monitor your dashboard regularly",
+      "Respond promptly to any queries",
+      "Keep documents updated",
+    ],
+  },
+];
+const applicationUrl = "/apply-now";
 </script>
 
 <template>
   <WebLayout :can-login="canLogin" :can-register="canRegister">
     <!-- Hero Section -->
-    <section class="relative overflow-hidden border-b bg-background py-20 sm:py-32">
+    <section
+      class="relative overflow-hidden border-b bg-background py-20 sm:py-32"
+    >
       <div class="container mx-auto px-4 text-center">
         <!-- Badge -->
         <div class="mb-8 inline-flex justify-center">
-          <Badge variant="outline" class="rounded-full border bg-primary/10 px-4 py-1 text-xs sm:text-sm">
-            ✨ Using PHP 8.3+, Laravel 11, Inertia 2.0 and Tailwind CSS 4+
+          <Badge
+            variant="outline"
+            class="rounded-full border bg-primary/10 px-4 py-1 text-xs sm:text-sm"
+          >
+            ✨ Streamlined Scholarship Management System
           </Badge>
         </div>
 
@@ -128,64 +299,56 @@ const githubUrl = 'https://github.com/pushpak1300/larasonic'
             class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
             :style="{ contain: 'layout paint' }"
           >
-            <span class="block text-foreground">Modern Laravel</span>
+            <span class="block text-foreground">ScholarTrack</span>
             <span
-              class="mt-2 block bg-linear-to-r from-red-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent"
+              class="mt-2 block bg-linear-to-r from-blue-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent"
             >
-              SaaS Starter Kit
+              Application & Progress Tracking
             </span>
           </h1>
         </div>
 
-        <!-- Subtitle - Add priority hint -->
+        <!-- Subtitle -->
         <p
           class="mx-auto mt-6 max-w-2xl text-center text-base text-muted-foreground sm:text-lg md:text-xl"
           :style="{ contain: 'layout paint' }"
           fetchpriority="high"
         >
-          Ship faster production-ready applications 10x faster with starter kit powered
-          by Laravel Jetstream, Inertia V2, and Shadcn/ui.
+          Simplifying scholarship management with comprehensive tracking,
+          monitoring, and support tools.
         </p>
 
         <!-- CTA Buttons -->
         <div class="mt-10 flex items-center justify-center gap-4 flex-row">
           <Button
-            as="a" href="https://larasonic.com/dashboard" target="_blank" size="lg"
+            as="a"
+            :href="applicationUrl"
+            size="lg"
             class="w-full sm:w-auto"
           >
-            View Demo
+            Apply Now
           </Button>
           <Button
-            as="a" :href="githubUrl" target="_blank" size="lg" variant="outline"
+            as="a"
+            :href="route('login')"
+            size="lg"
+            variant="outline"
             class="w-full sm:w-auto"
           >
-            <Icon icon="lucide:github" class="size-4" aria-hidden="true" />
-            Github
+            <Icon icon="lucide:user" class="size-4" aria-hidden="true" />
+            Track Application
           </Button>
         </div>
 
-        <!-- Trust Badges -->
+        <!-- Trust Indicators -->
         <div class="mt-16 sm:mt-24">
           <p class="text-sm text-muted-foreground">
-            Trusted by developers worldwide
+            Trusted by educational institutions
           </p>
-          <div class="mt-4 flex flex-wrap items-center justify-center gap-6 sm:gap-8">
-            <Icon
-              icon="logos:laravel"
-              class="size-8 opacity-75 grayscale transition-all hover:opacity-100 hover:grayscale-0"
-            />
-            <Icon
-              icon="logos:vue"
-              class="size-8 opacity-75 grayscale transition-all hover:opacity-100 hover:grayscale-0"
-            />
-            <Icon
-              icon="simple-icons:inertia"
-              class="size-8 opacity-75 grayscale transition-all hover:opacity-100 hover:grayscale-0 text-purple-500"
-            />
-            <Icon
-              icon="logos:tailwindcss-icon"
-              class="size-8 opacity-75 grayscale transition-all hover:opacity-100 hover:grayscale-0"
-            />
+          <div
+            class="mt-4 flex flex-wrap items-center justify-center gap-6 sm:gap-8"
+          >
+            <!-- Add relevant educational institution logos here -->
           </div>
         </div>
       </div>
@@ -198,91 +361,196 @@ const githubUrl = 'https://github.com/pushpak1300/larasonic'
         class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]"
       />
     </section>
+
     <!-- Features Grid -->
     <section id="features" class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
       <h2 class="text-center text-2xl font-bold tracking-tight sm:text-4xl">
-        Features ✨
+        System Features ✨
       </h2>
       <p class="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-        Everything you need to ship faste to production without any hassle.
+        Everything you need to manage your scholarship application and track
+        your progress.
       </p>
 
       <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         <FeaturesCard
-          v-for="feature in features" :key="feature.title" :icon="feature.icon"
-          :title="feature.title" :description="feature.description"
+          v-for="feature in features"
+          :key="feature.title"
+          :icon="feature.icon"
+          :title="feature.title"
+          :description="feature.description"
         />
-      </div>
-      <div class="mt-6 flex justify-center gap-2">
-        <Button as="a" href="https://docs.larasonic.com" target="_blank" rel="noopener noreferrer">
-          <Icon icon="lucide:book-open" class="size-4" aria-hidden="true" />
-          Documentation
-        </Button>
-        <Button
-          variant="secondary" as="a" :href="`${githubUrl}/discussions/categories/roadmap`" target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Icon icon="lucide:construction" class="size-4" aria-hidden="true" />
-          Roadmap
-        </Button>
       </div>
     </section>
 
-    <section id="pricing" class="border-t">
+    <!-- FAQ Section -->
+    <section id="faq" class="border-t">
       <div class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mx-auto max-w-3xl text-center">
+        <div class="mx-auto max-w-4xl text-center">
           <h2 class="text-center text-2xl font-bold tracking-tight sm:text-4xl">
-            Proudly Open Source 🤑
+            Frequently Asked Questions
           </h2>
-          <p class="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-            Larasonic is and will always be open source. No hidden fees, no premium features.
+          <p class="mt-4 text-muted-foreground">
+            Find answers to common questions about our scholarship programs and
+            application process
           </p>
         </div>
 
-        <!-- Pricing Card -->
-        <PricingCard
-          class="mx-auto mt-16" :features="pricingFeatures" :price="0" plan="What's included ?"
-          billing-period="Free Forever"
-        >
-          <template #action>
-            <Button :as="Link" :href="route('dashboard')">
-              Get Started
-            </Button>
-          </template>
-          <template #footer>
-            <div class="flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <p class="text-sm">
-                Want to support the development?
-              </p>
-              <div class="flex gap-4">
-                <Button variant="outline" as="a" :href="sponsorLinks.github" target="_blank">
-                  <Icon icon="mdi:github" class="mr-2 size-4" aria-hidden="true" />
-                  Sponsor
-                </Button>
-                <Button variant="outline" as="a" :href="sponsorLinks.x" target="_blank">
-                  <Icon icon="ri:twitter-x-line" class="mr-2 size-4" aria-hidden="true" />
-                  Follow Me
-                </Button>
-              </div>
-            </div>
-          </template>
-        </PricingCard>
-        <!-- FAQ Section -->
-        <div class="mx-auto mt-16 text-center">
-          <h2 class="text-2xl font-bold">
-            Frequently Asked Questions
+        <div class="mt-16">
+          <div class="grid gap-8 lg:grid-cols-[300px_1fr]">
+            <!-- Category Navigation -->
+            <Card class="h-fit">
+              <CardContent class="p-4">
+                <nav class="space-y-2">
+                  <button
+                    v-for="category in faqCategories"
+                    :key="category.id"
+                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent"
+                    :class="{ 'bg-accent': activeCategory === category.id }"
+                    @click="activeCategory = category.id"
+                  >
+                    <Icon :icon="category.icon" class="h-5 w-5" />
+                    <span>{{ category.title }}</span>
+                  </button>
+                </nav>
+              </CardContent>
+            </Card>
+
+            <!-- FAQ Content -->
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {{
+                    faqCategories.find((c) => c.id === activeCategory)?.title
+                  }}
+                </CardTitle>
+                <CardDescription>
+                  Click on any question to see the detailed answer
+                </CardDescription>
+              </CardHeader>
+              <CardContent class="p-6">
+                <ScrollArea class="h-[500px] pr-4">
+                  <div class="space-y-4">
+                    <div
+                      v-for="(category, idx) in faqCategories"
+                      :key="idx"
+                      v-show="category.id === activeCategory"
+                    >
+                      <div
+                        v-for="(item, qIdx) in category.questions"
+                        :key="qIdx"
+                        class="rounded-lg border transition-all duration-200 hover:shadow-md"
+                        :class="{
+                          'border-primary':
+                            activeQuestion === `${category.id}-${qIdx}`,
+                        }"
+                      >
+                        <button
+                          class="flex w-full items-center justify-between p-4 text-left"
+                          @click="
+                            activeQuestion =
+                              activeQuestion === `${category.id}-${qIdx}`
+                                ? null
+                                : `${category.id}-${qIdx}`
+                          "
+                        >
+                          <h3 class="font-medium">{{ item.question }}</h3>
+                          <Icon
+                            :icon="
+                              activeQuestion === `${category.id}-${qIdx}`
+                                ? 'lucide:minus'
+                                : 'lucide:plus'
+                            "
+                            class="h-5 w-5 shrink-0"
+                          />
+                        </button>
+
+                        <div
+                          v-if="activeQuestion === `${category.id}-${qIdx}`"
+                          class="border-t px-4 py-3"
+                        >
+                          <p class="text-sm text-muted-foreground">
+                            {{ item.answer }}
+                          </p>
+                          <ul class="mt-2 space-y-1">
+                            <li
+                              v-for="(detail, dIdx) in item.details"
+                              :key="dIdx"
+                              class="flex items-center gap-2 text-sm text-muted-foreground"
+                            >
+                              <Icon
+                                icon="lucide:check"
+                                class="h-4 w-4 text-green-500"
+                              />
+                              {{ detail }}
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <!-- Help Center Link -->
+        <div class="mt-12 text-center">
+          <p class="text-sm text-muted-foreground">
+            Can't find what you're looking for?
+          </p>
+          <Button variant="link" as="a" href="/help-center" class="mt-2">
+            Visit our Help Center
+            <Icon icon="lucide:external-link" class="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </section>
+
+    <!-- New How to Apply Section -->
+    <section id="how-to-apply" class="border-t">
+      <div class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-4xl text-center">
+          <h2 class="text-center text-2xl font-bold tracking-tight sm:text-4xl">
+            How to Apply
           </h2>
-          <Accordion type="single" class="mt-8 w-full text-left" collapsible default-value="item-1">
-            <AccordionItem v-for="item in faqItems" :key="item.value" :value="item.value">
-              <AccordionTrigger class="text-lg">
-                {{ item.title }}
-              </AccordionTrigger>
-              <AccordionContent>
-                {{ item.content }}
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          <p class="mt-4 text-muted-foreground">
+            Follow these simple steps to start your scholarship journey
+          </p>
+        </div>
+
+        <div class="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <Card
+            v-for="step in applicationSteps"
+            :key="step.number"
+            class="relative"
+          >
+            <CardHeader>
+              <div
+                class="absolute -top-4 left-4 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white"
+              >
+                {{ step.number }}
+              </div>
+              <Icon :icon="step.icon" class="h-8 w-8 text-primary" />
+              <CardTitle>{{ step.title }}</CardTitle>
+              <CardDescription>{{ step.description }}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ul class="list-disc pl-4 text-sm text-muted-foreground">
+                <li v-for="(tip, index) in step.tips" :key="index" class="mt-2">
+                  {{ tip }}
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div class="mt-12 text-center">
+          <Button as="a" :href="applicationUrl" size="lg" class="gap-2">
+            <Icon icon="lucide:arrow-right" class="h-4 w-4" />
+            Start Your Application
+          </Button>
         </div>
       </div>
     </section>
@@ -293,21 +561,18 @@ const githubUrl = 'https://github.com/pushpak1300/larasonic'
         <div class="rounded-2xl px-6 py-12 sm:p-16">
           <div class="mx-auto max-w-2xl text-center">
             <h2 class="text-3xl font-bold tracking-tight sm:text-6xl">
-              Ready to ship faster?
+              Ready to start your journey?
             </h2>
             <p class="mx-auto mt-4 max-w-xl text-lg">
-              You're already blazing fast with Laravel.<br> Larasonic is about to make your shipping speed
-              supersonic. 🚀
+              Take the first step towards your educational goals.<br />
+              Apply for your scholarship today! 🎓
             </p>
             <div class="mt-8 flex justify-center gap-4">
-              <Button as="a" :href="githubUrl" target="_blank" rel="noopener noreferrer">
-                View on GitHub
+              <Button as="a" :href="applicationUrl" size="lg">
+                Apply Now
               </Button>
             </div>
           </div>
-        </div>
-        <div class="mx-auto w-full sm:w-2/3 items-center justify-center">
-          <Terminal />
         </div>
       </div>
     </section>

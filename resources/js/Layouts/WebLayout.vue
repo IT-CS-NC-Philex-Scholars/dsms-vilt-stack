@@ -1,10 +1,11 @@
 <script setup>
-import Button from '@/Components/shadcn/ui/button/Button.vue'
-import { Icon } from '@iconify/vue'
-import { Link } from '@inertiajs/vue3'
-import { useColorMode } from '@vueuse/core'
-import { ref } from 'vue'
-
+import Button from "@/Components/shadcn/ui/button/Button.vue";
+import Badge from "@/Components/shadcn/ui/badge/Badge.vue";
+import { Icon } from "@iconify/vue";
+import { Link } from "@inertiajs/vue3";
+import { useColorMode } from "@vueuse/core";
+import { ref } from "vue";
+import Sonner from '@/Components/shadcn/ui/sonner/Sonner.vue'
 defineProps({
   canLogin: {
     type: Boolean,
@@ -12,129 +13,183 @@ defineProps({
   canRegister: {
     type: Boolean,
   },
-})
+});
 
 const mode = useColorMode({
-  attribute: 'class',
+  attribute: "class",
   modes: {
-    light: '',
-    dark: 'dark',
+    light: "",
+    dark: "dark",
   },
-})
+});
 
 const navLinks = [
-  { label: 'Features', href: '/#features', external: false },
-  { label: 'Pricing', href: '/#pricing', external: false },
-  { label: 'Docs', href: 'https://docs.larasonic.com/introduction', external: true },
-]
+  {
+    label: "Features",
+    href: "/#features",
+    icon: "lucide:layout-grid",
+    external: false,
+  },
+  { label: "FAQ", href: "/#faq", icon: "lucide:help-circle", external: false },
+  {
+    label: "How to Apply",
+    href: "/#how-to-apply",
+    icon: "lucide:file-text",
+    external: false,
+  },
+];
 
-const githubUrl = 'https://github.com/pushpak1300/Larasonic'
-const twitterUrl = 'https://x.com/pushpak1300?ref=larasonic'
-
-const isMenuOpen = ref(false)
+const isMenuOpen = ref(false);
 
 function toggleMenu() {
-  isMenuOpen.value = !isMenuOpen.value
+  isMenuOpen.value = !isMenuOpen.value;
 }
 </script>
 
 <template>
+    <Sonner position="top-center" />
   <div class="min-h-screen">
     <header
-      class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-backdrop-filter:bg-background/60"
+      class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm"
     >
-      <div class="container flex h-16 items-center justify-between">
-        <div class="flex items-center">
-          <a class="flex items-center space-x-2" href="/" :aria-label="$page.props.name">
-            <Icon icon="lucide:rocket" class="h-6 w-6" aria-hidden="true" />
-            <span class="hidden font-bold sm:inline-block">
-              {{ $page.props.name }}
-            </span>
+      <div class="container flex h-20 items-center justify-between">
+        <div class="flex items-center gap-8">
+          <a
+            class="flex items-center gap-3"
+            href="/"
+            :aria-label="$page.props.name"
+          >
+            <Icon
+              icon="lucide:graduation-cap"
+              class="h-8 w-8 text-primary"
+              aria-hidden="true"
+            />
+            <div class="hidden flex-col sm:flex">
+              <span class="text-lg font-bold">ScholarTrack</span>
+              <Badge variant="outline" class="text-xs"
+                >Scholarship Portal</Badge
+              >
+            </div>
           </a>
-          <nav class="hidden md:flex items-center space-x-6 text-sm font-medium sm:ml-4">
+
+          <nav class="hidden md:flex items-center gap-6">
             <a
-              v-for="link in navLinks" :key="link.href" :href="link.href"
-              class="transition-colors hover:text-foreground/80" :class="[
-                link.href.startsWith('http') ? '' : 'text-foreground/60',
-              ]" :target="link.href.startsWith('http') ? '_blank' : undefined"
-              :rel="link.href.startsWith('http') ? 'noreferrer' : undefined"
+              v-for="link in navLinks"
+              :key="link.href"
+              :href="link.href"
+              class="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary"
             >
+              <Icon :icon="link.icon" class="h-4 w-4" />
               {{ link.label }}
             </a>
           </nav>
         </div>
-        <div class="flex items-center space-x-4">
-          <div class="hidden sm:flex space-x-2">
+
+        <div class="flex items-center gap-4">
+          <div class="hidden sm:flex gap-3">
             <template v-if="!$page.props.auth.user">
-              <Button variant="outline" :as="Link" href="/login" prefetch="mount">
+              <Button
+                variant="outline"
+                :as="Link"
+                href="/login"
+                class="flex gap-2"
+              >
+                <Icon icon="lucide:log-in" class="h-4 w-4" />
                 Login
               </Button>
-              <Button variant="outline" :as="Link" href="/register" prefetch="mount">
-                Register
+              <Button :as="Link" href="/pre-qualification" class="flex gap-2">
+                <Icon icon="lucide:file-plus" class="h-4 w-4" />
+                Apply Now
               </Button>
             </template>
-            <Button v-else variant="outline" :as="Link" href="/dashboard" prefetch="mount">
+            <Button
+              v-else
+              variant="outline"
+              :as="Link"
+              href="/dashboard"
+              class="flex gap-2"
+            >
+              <Icon icon="lucide:layout-dashboard" class="h-4 w-4" />
               Dashboard
             </Button>
           </div>
+
           <Button
-            variant="ghost" size="icon" aria-label="Toggle Theme"
+            variant="ghost"
+            size="icon"
+            aria-label="Toggle Theme"
             @click="mode = mode === 'dark' ? 'light' : 'dark'"
           >
             <Icon
-              class="text-muted-foreground h-6 w-6"
+              class="h-5 w-5"
               :icon="mode === 'dark' ? 'lucide:sun' : 'lucide:moon'"
             />
           </Button>
-          <a
-            :href="githubUrl" target="_blank" rel="noreferrer" class="hidden sm:inline-block"
-            aria-label="GitHub"
+
+          <Button
+            class="md:hidden"
+            variant="ghost"
+            size="icon"
+            aria-label="Toggle menu"
+            @click="toggleMenu"
           >
-            <Icon icon="mdi:github" class="h-5 w-5" />
-          </a>
-          <Button class="md:hidden" variant="ghost" size="icon" aria-label="Toggle menu" @click="toggleMenu">
-            <Icon :icon="isMenuOpen ? 'lucide:x' : 'lucide:menu'" class="h-6 w-6" aria-hidden="true" />
+            <Icon
+              :icon="isMenuOpen ? 'lucide:x' : 'lucide:menu'"
+              class="h-6 w-6"
+              aria-hidden="true"
+            />
           </Button>
         </div>
       </div>
+
       <!-- Mobile menu -->
-      <div v-show="isMenuOpen" class="md:hidden border-t">
-        <nav class="flex flex-col p-4 space-y-4">
+      <div
+        v-show="isMenuOpen"
+        class="md:hidden border-t bg-background/95 backdrop-blur-sm"
+      >
+        <nav class="container flex flex-col py-4 gap-3">
           <a
-            v-for="link in navLinks" :key="link.href" :href="link.href"
-            class="text-sm font-medium transition-colors hover:text-foreground/80"
-            :target="link.href.startsWith('http') ? '_blank' : undefined"
-            :rel="link.href.startsWith('http') ? 'noreferrer' : undefined" @click="toggleMenu"
+            v-for="link in navLinks"
+            :key="link.href"
+            :href="link.href"
+            class="flex items-center gap-3 p-3 rounded-lg hover:bg-accent"
+            @click="toggleMenu"
           >
+            <Icon :icon="link.icon" class="h-5 w-5" />
             {{ link.label }}
           </a>
+
+          <div class="border-t my-2"></div>
+
           <template v-if="!$page.props.auth.user">
             <Button
-              variant="outline" :as="Link" href="/login" class="w-full" prefetch="mount"
-              @click="toggleMenu"
+              variant="outline"
+              :as="Link"
+              href="/login"
+              class="w-full justify-start gap-3"
             >
+              <Icon icon="lucide:log-in" class="h-5 w-5" />
               Login
             </Button>
             <Button
-              variant="outline" :as="Link" href="/register" class="w-full" prefetch="mount"
-              @click="toggleMenu"
+              :as="Link"
+              href="/apply-now"
+              class="w-full justify-start gap-3"
             >
-              Register
+              <Icon icon="lucide:file-plus" class="h-5 w-5" />
+              Apply Now
             </Button>
           </template>
           <Button
-            v-else variant="outline" :as="Link" href="/dashboard" class="w-full"
-            prefetch="mount" @click="toggleMobileMenu"
+            v-else
+            variant="outline"
+            :as="Link"
+            href="/dashboard"
+            class="w-full justify-start gap-3"
           >
+            <Icon icon="lucide:layout-dashboard" class="h-5 w-5" />
             Dashboard
           </Button>
-          <a
-            :href="githubUrl" target="_blank" rel="noreferrer"
-            class="flex items-center space-x-2 text-sm font-medium" @click="toggleMobileMenu"
-          >
-            <Icon icon="mdi:github" class="h-5 w-5" />
-            <span>GitHub</span>
-          </a>
         </nav>
       </div>
     </header>
@@ -142,44 +197,29 @@ function toggleMenu() {
     <slot />
 
     <!-- Footer -->
-    <footer class="border-t">
-      <div class="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <p class="text-sm flex items-center gap-2 text-center sm:text-left">
-            <Icon icon="lucide:rocket" class="size-6" aria-hidden="true" />
-            Crafted by<a
-              class="underline" :href="twitterUrl" target="_blank"
-              rel="noopener noreferrer"
-            >Pushpak.
-            </a>
-            <span>
-              Hosted On <a
-                class="underline" href="https://sevalla.com/?ref=larasonic" target="_blank"
-                rel="noopener noreferrer"
-              >
-                Sevalla
-              </a>
-              ❤️
-            </span>
-          </p>
+    <footer class="border-t bg-background/95">
+      <div class="container py-8">
+        <div
+          class="flex flex-col items-center justify-between gap-4 sm:flex-row"
+        >
+          <div class="flex items-center gap-3">
+            <Icon icon="lucide:graduation-cap" class="h-6 w-6 text-primary" />
+            <span class="text-sm font-medium"
+              >© 2024 ScholarTrack. All rights reserved.</span
+            >
+          </div>
           <div class="flex gap-4">
-            <Icon
-              class="text-muted-foreground" :icon="mode === 'dark' ? 'lucide:sun' : 'lucide:moon'"
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Toggle Theme"
               @click="mode = mode === 'dark' ? 'light' : 'dark'"
-            />
-
-            <a
-              :href="githubUrl" target="_blank" rel="noopener noreferrer"
-              class="text-muted-foreground hover:text-foreground" aria-label="GitHub"
             >
-              <Icon icon="mdi:github" class="h-5 w-5" aria-hidden="true" />
-            </a>
-            <a
-              :href="twitterUrl" target="_blank" rel="noopener noreferrer"
-              class="text-muted-foreground hover:text-foreground" aria-label="Twitter"
-            >
-              <Icon icon="ri:twitter-x-line" class="h-5 w-5" aria-hidden="true" />
-            </a>
+              <Icon
+                class="h-5 w-5"
+                :icon="mode === 'dark' ? 'lucide:sun' : 'lucide:moon'"
+              />
+            </Button>
           </div>
         </div>
       </div>

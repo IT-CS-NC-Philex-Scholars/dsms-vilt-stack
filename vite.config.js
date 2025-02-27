@@ -9,6 +9,7 @@ export default defineConfig({
       input: [
         // "./vendor/tomatophp/filament-simple-theme/resources/css/theme.css",
         "resources/js/app.js",
+        "resources/css/app.css",
       ],
       publicDirectory: "public",
       refresh: true,

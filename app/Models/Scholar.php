@@ -10,6 +10,7 @@ class Scholar extends Model
     use SoftDeletes;
 
         protected $fillable = [
+            'user_id',
             'first_name',
             'middle_name',
             'last_name',
@@ -39,6 +40,12 @@ class Scholar extends Model
             'status' => 'string',
             'additional_details' => 'json'
         ];
+
+
+        public function user()
+        {
+            return $this->belongsTo(User::class, 'user_id', 'id');
+        }
 
         public function school()
         {

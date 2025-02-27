@@ -6,74 +6,82 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/Components/shadcn/ui/sidebar'
-import { Icon } from '@iconify/vue'
-import { Link } from '@inertiajs/vue3'
-import { useColorMode } from '@vueuse/core'
-import { computed, inject } from 'vue'
+} from "@/Components/shadcn/ui/sidebar";
+import { Icon } from "@iconify/vue";
+import { Link } from "@inertiajs/vue3";
+import { useColorMode } from "@vueuse/core";
+import { computed, inject } from "vue";
 
-const route = inject('route')
+const route = inject("route");
 const mode = useColorMode({
-  attribute: 'class',
-  modes: { light: '', dark: 'dark' },
-})
+  attribute: "class",
+  modes: { light: "", dark: "dark" },
+});
 
 const navigationConfig = [
   {
-    label: 'Platform',
+    label: "Platform",
     items: [
-      { name: 'Dashboard', icon: 'lucide:layout-dashboard', route: 'dashboard' },
-      { name: 'Settings', icon: 'lucide:settings', route: 'profile.show' },
-      { name: 'Chat', icon: 'lucide:message-circle', route: 'chat.index' },
+      {
+        name: "Dashboard",
+        icon: "lucide:layout-dashboard",
+        route: "dashboard",
+      },
+      { name: "Settings", icon: "lucide:settings", route: "profile.show" },
+      // { name: "Chat", icon: "lucide:message-circle", route: "chat.index" },
     ],
   },
-  {
-    label: 'API',
-    items: [
-      { name: 'API Tokens', icon: 'lucide:key', route: 'api-tokens.index' },
-      { name: 'API Documentation', icon: 'lucide:book-heart', route: 'scribe', external: true },
-    ],
-  },
+  // {
+  //   label: 'API',
+  //   items: [
+  //     // { name: 'API Tokens', icon: 'lucide:key', route: 'api-tokens.index' },
+  //     // { name: 'API Documentation', icon: 'lucide:book-heart', route: 'scribe', external: true },
+  //   ],
+  // },
   {
     label: null,
-    class: 'mt-auto',
+    class: "mt-auto",
     items: [
       {
-        name: 'Support',
-        icon: 'lucide:life-buoy',
-        href: 'https://github.com/pushpak1300/larasonic/issues',
+        name: "Support",
+        icon: "lucide:life-buoy",
+        href: "https://github.com/pushpak1300/larasonic/issues",
         external: true,
       },
       {
-        name: 'Documentation',
-        icon: 'lucide:book-marked',
-        href: 'https://docs.larasonic.com',
+        name: "Documentation",
+        icon: "lucide:book-marked",
+        href: "https://docs.larasonic.com",
         external: true,
       },
     ],
   },
-]
+];
 
-const isDarkMode = computed(() => mode.value === 'dark')
+const isDarkMode = computed(() => mode.value === "dark");
 
 function renderLink(item) {
   if (item.external) {
     return {
-      is: 'a',
+      is: "a",
       href: item.href || route(item.route),
-      target: '_blank',
-    }
+      target: "_blank",
+    };
   }
   return {
     is: Link,
     href: route(item.route),
-  }
+  };
 }
 </script>
 
 <template>
   <SidebarContent>
-    <SidebarGroup v-for="(group, index) in navigationConfig" :key="index" :class="group.class">
+    <SidebarGroup
+      v-for="(group, index) in navigationConfig"
+      :key="index"
+      :class="group.class"
+    >
       <SidebarGroupLabel v-if="group.label">
         {{ group.label }}
       </SidebarGroupLabel>
@@ -81,10 +89,17 @@ function renderLink(item) {
         <SidebarMenuItem
           v-for="item in group.items"
           :key="item.name"
-          :class="{ 'font-semibold text-primary bg-secondary rounded': !item.external && route().current(item.route) }"
+          :class="{
+            'font-semibold text-primary bg-secondary rounded':
+              !item.external && route().current(item.route),
+          }"
         >
           <SidebarMenuButton as-child>
-            <component v-bind="renderLink(item)" :is="item.external ? 'a' : Link" prefetch>
+            <component
+              v-bind="renderLink(item)"
+              :is="item.external ? 'a' : Link"
+              prefetch
+            >
               <Icon :icon="item.icon" />
               {{ item.name }}
             </component>
@@ -93,7 +108,7 @@ function renderLink(item) {
         <SidebarMenuItem v-if="index === navigationConfig.length - 1">
           <SidebarMenuButton @click="mode = isDarkMode ? 'light' : 'dark'">
             <Icon :icon="isDarkMode ? 'lucide:moon' : 'lucide:sun'" />
-            {{ isDarkMode ? 'Dark' : 'Light' }} Mode
+            {{ isDarkMode ? "Dark" : "Light" }} Mode
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

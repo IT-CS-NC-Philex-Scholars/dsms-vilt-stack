@@ -7,7 +7,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Laravel](https://img.shields.io/badge/Laravel-v11.x-red)
 ![Vue](https://img.shields.io/badge/Vue.js-v3.x-green)
-![Inertia](https://img.shields.io/badge/Inertia.js-latest-purple)
+![Inertia](https://img.shields.io/badge/Inertia.js-v3.x-purple)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4.x-blue)
 ![SQLite](https://img.shields.io/badge/SQLite-v3-blue)
 
@@ -19,14 +19,19 @@
 <details>
 <summary>Click to expand</summary>
 
-- [✨ Overview](#-overview)
-- [🎯 Key Features](#-key-features)
-- [🏗 Architecture](#-architecture)
-- [🛠 Tech Stack](#-tech-stack)
-- [🚀 Getting Started](#-getting-started)
-- [📚 Documentation](#-documentation)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+- [🎓 PhilexScholar | Your Digital Scholarship Hub](#-philexscholar--your-digital-scholarship-hub)
+  - [📋 Table of Contents](#-table-of-contents)
+  - [✨ Overview](#-overview)
+    - [🎯 Key Features](#-key-features)
+  - [🏗 Architecture](#-architecture)
+    - [💾 Data Structure](#-data-structure)
+  - [🛠 Tech Stack](#-tech-stack)
+  - [🚀 Getting Started](#-getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+  - [📚 Documentation](#-documentation)
+  - [🤝 Contributing](#-contributing)
+  - [📄 License](#-license)
 
 </details>
 

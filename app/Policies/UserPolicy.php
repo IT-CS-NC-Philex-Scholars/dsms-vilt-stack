@@ -1,95 +1,144 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Policies;
 
 use App\Models\User;
 
-final class UserPolicy
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+class UserPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function viewAny(): bool
+    public function viewAny(User $user): bool
     {
-        return true;
+        return $user->can('view_any_user');
     }
 
     /**
      * Determine whether the user can view the model.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function view(User $user, User $model): bool
+    public function view(User $user): bool
     {
-        // Allow if it's the same user and token has read ability
-        if ($user->id === $model->id && $user->tokenCan('read')) {
-            return true;
-        }
-
-        // Allow if user has read permission and belongs to same team
-        return $user->belongsToTeam($model->currentTeam)
-            && $user->hasTeamPermission($model->currentTeam, 'read')
-            && $user->tokenCan('read');
+        return $user->can('view_user');
     }
 
     /**
      * Determine whether the user can create models.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
     public function create(User $user): bool
     {
-        return ($user->hasTeamRole($user->currentTeam, 'admin')
-            || $user->hasTeamPermission($user->currentTeam, 'create'))
-            && $user->tokenCan('create');
+        return $user->can('create_user');
     }
 
     /**
      * Determine whether the user can update the model.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function update(User $user, User $model): bool
+    public function update(User $user): bool
     {
-        // Allow if it's the same user and token has update ability
-        if ($user->id === $model->id && $user->tokenCan('update')) {
-            return true;
-        }
-
-        // Allow if user has write permission and belongs to same team
-        return $user->belongsToTeam($model->currentTeam)
-            && $user->hasTeamPermission($model->currentTeam, 'update')
-            && $user->tokenCan('update');
+        return $user->can('update_user');
     }
 
     /**
      * Determine whether the user can delete the model.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function delete(User $user, User $model): bool
+    public function delete(User $user): bool
     {
-        // Prevent self-deletion
-        if ($user->id === $model->id) {
-            return false;
-        }
-
-        // Only admin can delete users
-        return $user->belongsToTeam($model->currentTeam)
-            && $user->hasTeamRole($user->currentTeam, 'admin')
-            && $user->tokenCan('delete');
+        return $user->can('delete_user');
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determine whether the user can bulk delete.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
-    public function restore(User $user, User $model): bool
+    public function deleteAny(User $user): bool
     {
-        return $user->belongsToTeam($model->currentTeam)
-            && $user->hasTeamRole($user->currentTeam, 'admin')
-            && $user->tokenCan('delete');
+        return $user->can('delete_any_user');
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determine whether the user can permanently delete.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
      */
     public function forceDelete(User $user): bool
     {
-        return $user->hasTeamRole($user->currentTeam, 'admin')
-            && $user->tokenCan('delete');
+        return $user->can('force_delete_user');
+    }
+
+    /**
+     * Determine whether the user can permanently bulk delete.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function forceDeleteAny(User $user): bool
+    {
+        return $user->can('force_delete_any_user');
+    }
+
+    /**
+     * Determine whether the user can restore.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function restore(User $user): bool
+    {
+        return $user->can('restore_user');
+    }
+
+    /**
+     * Determine whether the user can bulk restore.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function restoreAny(User $user): bool
+    {
+        return $user->can('restore_any_user');
+    }
+
+    /**
+     * Determine whether the user can bulk restore.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function replicate(User $user): bool
+    {
+        return $user->can('replicate_user');
+    }
+
+    /**
+     * Determine whether the user can reorder.
+     *
+     * @param  \App\Models\User  $user
+     * @return bool
+     */
+    public function reorder(User $user): bool
+    {
+        return $user->can('reorder_user');
     }
 }

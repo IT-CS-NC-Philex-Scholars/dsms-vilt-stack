@@ -395,7 +395,7 @@ class ScholarResource extends Resource
             'index' => Pages\ListScholars::route('/'),
             'create' => Pages\CreateScholar::route('/create'),
             'edit' => Pages\EditScholar::route('/{record}/edit'),
-            ''
+            
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Scholar extends Model
@@ -58,12 +59,15 @@ class Scholar extends Model
             return $this->hasMany(Requirement::class);
         }
 
-        public function scholarships()
-        {
-            return $this->belongsToMany(Scholarship::class, 'scholar_scholarship')
-                        ->withPivot('status', 'start_date', 'end_date', 'remarks')
-                        ->withTimestamps();
-        }
+        /**
+             * Get the scholarships *awarded* to this scholar.
+             */
+            public function scholarships(): BelongsToMany
+            {
+                return $this->belongsToMany(Scholarship::class, 'scholar_scholarship')
+                            ->withPivot('status', 'start_date', 'end_date', 'remarks')
+                            ->withTimestamps();
+            }
 
         public function getFullNameAttribute()
         {

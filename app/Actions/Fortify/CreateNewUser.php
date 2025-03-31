@@ -54,7 +54,7 @@ final class CreateNewUser implements CreatesNewUsers
                  $this->createCustomer($user);
 
                  // Assign scholar role to user
-                 $scholarRole = Role::findOrCreate('scholar');
+                 $scholarRole = Role::findOrCreate('User');
                  $user->assignRole($scholarRole);
 
                  // Create scholar profile if pre-qualified

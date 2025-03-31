@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Scholar;
 use App\Models\School;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ScholarFactory extends Factory
@@ -78,6 +79,7 @@ class ScholarFactory extends Factory
 
 
         return [
+            'user_id' => User::query()->inRandomOrder()->first()->id,
             'first_name' => $this->faker->firstName,
             'middle_name' => $this->faker->optional(0.7)->lastName, // 70% chance of having middle name
             'last_name' => $this->faker->lastName,

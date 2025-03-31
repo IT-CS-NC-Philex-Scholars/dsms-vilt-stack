@@ -1,180 +1,281 @@
-# 🎓 PhilexScholar | Your Digital Scholarship Hub
+# 🎓 PhilexScholar | Digital Scholarship Management Hub
 
 <div align="center">
 
-![Status](https://img.shields.io/badge/status-in%20development-orange)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Laravel](https://img.shields.io/badge/Laravel-v10.x-red)
-![Vue](https://img.shields.io/badge/Vue.js-v3.x-green)
-![Inertia](https://img.shields.io/badge/Inertia.js-latest-purple)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v3.x-blue)
-![SQLite](https://img.shields.io/badge/SQLite-v3-blue)
+[![Status](https://img.shields.io/badge/status-in%20development-orange?style=for-the-badge)](https://github.com/IT-CS-NC-Philex-Scholars/philexscholar)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)](https://github.com/IT-CS-NC-Philex-Scholars/philexscholar/releases)
+[![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](LICENSE)
+
+[![Laravel](https://img.shields.io/badge/Laravel-v10.x-FF2D20?style=flat&logo=laravel)](https://laravel.com)
+[![Vue.js](https://img.shields.io/badge/Vue.js-v3.x-4FC08D?style=flat&logo=vue.js)](https://vuejs.org)
+[![Inertia.js](https://img.shields.io/badge/Inertia.js-Latest-805AD5?style=flat&logo=inertia)](https://inertiajs.com)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v3.x-06B6D4?style=flat&logo=tailwindcss)](https://tailwindcss.com)
+[![SQLite](https://img.shields.io/badge/Database-SQLite-003B57?style=flat&logo=sqlite)](https://www.sqlite.org/index.html)
+
+**Transforming scholarship management for the Philex Mines community with a seamless, modern digital experience.**
 
 </div>
 
-> 🌟 Transforming scholarship management for the Philex Mines community through innovative digital solutions
+---
 
-## 📋 Table of Contents
-<details>
-<summary>Click to expand</summary>
+## 🌟 Overview
 
-- [✨ Overview](#-overview)
-- [🎯 Key Features](#-key-features)
-- [🏗 Architecture](#-architecture)
-- [🛠 Tech Stack](#-tech-stack)
-- [🚀 Getting Started](#-getting-started)
-- [📚 Documentation](#-documentation)
-- [🤝 Contributing](#-contributing)
-- [📄 License](#-license)
+PhilexScholar addresses the challenges of traditional scholarship management by providing a centralized, efficient, and user-friendly platform. Built on the robust **VILT stack (Vue.js, Inertia.js, Laravel, TailwindCSS)**, it streamlines the entire scholarship lifecycle – from application discovery and submission to administrative review, disbursement tracking, and reporting – for both students and administrators within the Philex Mines community.
 
-</details>
+## 🎯 Project Goal
 
-## ✨ Overview
+Our primary goal is to **revolutionize the Philex Mines scholarship process** by:
 
-PhilexScholar revolutionizes scholarship management with a modern, user-friendly platform built on the powerful VILT stack (Vue.js, Inertia.js, Laravel, TailwindCSS). Our system streamlines the entire scholarship process from application to disbursement.
+1.  **Centralizing** all scholarship information and activities into a single, accessible platform.
+2.  **Streamlining** application submission, review, and management workflows for enhanced efficiency.
+3.  **Improving** transparency and communication between applicants, scholars, and administrators.
+4.  **Providing** robust tools for administrators to manage programs and finances effectively.
+5.  **Delivering** a modern, intuitive, and secure user experience for all stakeholders.
 
-### 🎯 Key Features
+## ✨ Key Features
 
-<details>
-<summary>👨‍🎓 For Students</summary>
+PhilexScholar is designed with dedicated features for its primary users:
 
-- **Smart Application Portal**
-  - Intuitive step-by-step forms
-  - Document upload system
-  - Real-time status tracking
-  - Automated notifications
+### 👨‍🎓 For Students (Scholars)
 
-- **Student Dashboard**
-  - Application progress monitoring
-  - Document management
-  - Payment schedule tracking
-  - Direct communication channel
-</details>
+*   **Effortless Application:** Intuitive, guided forms simplify the application process.
+*   **Centralized Document Hub:** Easily upload, manage, and track required documents.
+*   **Real-time Status Tracking:** Monitor application progress and receive timely notifications (🔔).
+*   **Personalized Dashboard:** View application status, manage profile information, track payment schedules (💰), and communicate with administrators.
+*   **Scholarship Discovery:** Browse and filter available scholarship opportunities.
 
-<details>
-<summary>👨‍💼 For Administrators</summary>
+### 👨‍💼 For Administrators
 
-- **Application Management**
-  - Bulk application processing
-  - Document verification system
-  - Automated eligibility checks
+*   **Efficient Application Management:** Bulk processing tools, advanced filtering, and streamlined document verification.
+*   **Automated Eligibility Checks:** Systematically verify applicant eligibility based on defined criteria.
+*   **Comprehensive Financial Tools:** Manage disbursement schedules, track payments, and generate financial reports (📈).
+*   **Flexible Program Configuration:** Define dynamic eligibility rules, manage scholarship cycles, and customize workflows.
+*   **Data & Analytics:** Access dashboards with key metrics on applications, demographics, and program performance.
+*   **Secure Communication Channel:** Communicate directly with applicants and scholars within the platform.
 
-- **Financial Management**
-  - Streamlined disbursement
-  - Payment tracking
-  - Financial reporting
+---
 
-- **Program Administration**
-  - Dynamic eligibility criteria
-  - Custom workflow configuration
-  - Analytics dashboard
-</details>
+## 🏗️ System Architecture
 
-## 🏗 Architecture
+PhilexScholar employs a modern monolithic approach using the VILT stack:
 
 ```mermaid
 graph TD
-    A[Vue.js Frontend] --> B[Inertia.js]
-    B --> C[Laravel Backend]
-    C --> D[SQLite Database]
-    C --> E[File Storage]
-    C --> F[Authentication]
+    subgraph "Browser"
+        A[Vue.js Frontend (UI/UX)]
+    end
+    subgraph "Server"
+        B(Inertia.js Adapter)
+        C[Laravel Backend (API/Logic)]
+        D[(SQLite Database)]
+        E[(File Storage)]
+        F{Authentication (Sanctum)}
+    end
+
+    A <== Inertia.js ==> B
+    B -- Requests/Props --> C
+    C -- CRUD Ops --> D
+    C -- Reads/Writes --> E
+    C -- Manages Auth --> F
 ```
 
-### 💾 Data Structure
+*   **Vue.js:** Provides a reactive and interactive user interface.
+*   **Inertia.js:** Connects the Laravel backend and Vue.js frontend without building a separate API, enabling rapid development.
+*   **Laravel:** Handles business logic, data management, authentication, and server-side rendering aspects.
+*   **SQLite:** Offers a lightweight, file-based database suitable for this application's scale (can be swapped for MySQL/PostgreSQL if needed).
+*   **File Storage:** Securely manages uploaded documents (e.g., local, S3).
+*   **Laravel Sanctum:** Provides simple and effective authentication.
 
-```
-📦 PhilexScholar
- ┣ 📂 Database
- ┃ ┣ 📜 Scholars
- ┃ ┣ 📜 Applications
- ┃ ┗ 📜 Payments
- ┣ 📂 Storage
- ┃ ┗ 📜 Documents
- ┗ 📂 Authentication
-```
+---
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 
 <details>
-<summary>Frontend Technologies</summary>
+<summary><strong>Core Technologies Used</strong> (Click to expand)</summary>
 
-- **Vue.js 3** - Progressive JavaScript framework
-- **Inertia.js** - Modern monolith architecture
-- **TailwindCSS** - Utility-first CSS framework
+| Category  | Technology                                                     | Description                                   |
+| :-------- | :------------------------------------------------------------- | :-------------------------------------------- |
+| Frontend  | **Vue.js 3** (Composition API)                                 | Progressive JavaScript framework              |
+|           | **Inertia.js**                                                 | Modern monolith framework                     |
+|           | **TailwindCSS 3**                                              | Utility-first CSS framework                   |
+|           | `@iconify/vue` / `lucide-vue-next`                             | Icon libraries                                |
+| Backend   | **Laravel 10.x**                                               | PHP Web Framework                             |
+|           | **PHP 8.1+**                                                   | Server-side scripting language                |
+| Database  | **SQLite 3**                                                   | Default relational database                   |
+| Auth      | **Laravel Sanctum**                                            | API / Session Authentication                  |
+| Dev Tools | **Vite**                                                       | Frontend tooling (dev server, bundling)       |
+|           | **Composer**                                                   | PHP dependency manager                        |
+|           | **NPM / Yarn**                                                 | Node.js dependency manager                    |
+| UI Lib    | **Shadcn UI (Vue Port)**                                       | Re-usable UI components                       |
+
 </details>
 
-<details>
-<summary>Backend Technologies</summary>
+---
 
-- **Laravel 10** - PHP web framework
-- **SQLite** - Lightweight database
-- **Laravel Sanctum** - API authentication
-</details>
+## 🗺️ Project Roadmap
+
+This roadmap outlines our planned features and development milestones. Status updates reflect current progress.
+
+| Feature / Milestone                 | Description                                                                   | Status        | Target / ETA |
+| :---------------------------------- | :---------------------------------------------------------------------------- | :------------ | :----------- |
+| **Phase 1: Foundation**             | **Setup core project structure & authentication**                             | ✅ Completed   | Q1 2024      |
+| User Authentication & Profiles    | Basic registration, login, profile management (Jetstream/Breeze based)      | ✅ Completed   | Q1 2024      |
+| Basic Admin User Management       | Ability for admins to manage user accounts                                    | ✅ Completed   | Q1 2024      |
+| Core Database Schema              | Initial design for Scholars, Applications, Payments, Documents tables         | ✅ Completed   | Q1 2024      |
+| **Phase 2: Core Features (MVP)**    | **Implement essential student and admin workflows**                           | ⏳ In Progress | Q2-Q3 2025   |
+| Student Application Portal        | Step-by-step application form submission                                      | ⏳ In Progress | Q2 2025      |
+| Document Upload System            | Secure file uploads for required application documents                        | ⏳ In Progress | Q2 2025      |
+| Basic Admin Application Review    | View submitted applications and documents                                       | ⏳ In Progress | Q3 2025      |
+| Application Status Tracking       | Students can view basic status (Submitted, Under Review)                      | 📅 Planned     | Q3 2025      |
+| Basic Notification System         | Email notifications for key events (e.g., submission confirmation)            | 📅 Planned     | Q3 2025      |
+| **Phase 3: Enhancements**           | **Add advanced features and improve usability**                               | 📅 Planned     | Q4 2025      |
+| Advanced Admin Review Tools       | Bulk actions, filtering, sorting, document verification flags               | 📅 Planned     | Q4 2024      |
+| Automated Eligibility Checks      | System checks based on predefined criteria                                    | 📅 Planned     | Q4 2024      |
+| Financial Management (Admin)      | Track disbursements, manage payment schedules                                 | 📅 Planned     | Q4 2024      |
+| Scholar Dashboard Enhancements    | Display payment schedule, improved status details                             | 📅 Planned     | Q4 2024      |
+| Program Configuration (Admin)     | Manage scholarship details, cycles, eligibility rules                         | 💡 Idea        | 2025         |
+| **Phase 4: Future Development**   | **Long-term goals and potential additions**                                   | 💡 Idea        | 2025+        |
+| Reporting & Analytics             | Generate reports on applications, financials, demographics                    | 💡 Idea        | 2025         |
+| Direct Communication Module       | In-app messaging between admins and applicants/scholars                     | 💡 Idea        | 2025         |
+| API for Integrations              | Potential API for connecting with other Philex systems                      | 💡 Idea        | 2025+        |
+| Mobile Responsiveness++           | Enhanced mobile-specific views and potentially a PWA                          | 💡 Idea        | 2025+        |
+
+**Status Key:** ✅ Completed | ⏳ In Progress | 📅 Planned | 💡 Idea / Backlog
+
+---
 
 ## 🚀 Getting Started
 
+Follow these steps to set up the PhilexScholar project locally for development.
+
 ### Prerequisites
-```bash
-php >= 8.1
-composer
-npm
-sqlite3
-```
+
+*   PHP >= 8.1
+*   Composer
+*   Node.js & NPM (or Yarn)
+*   SQLite 3 (or configure another database like MySQL/PostgreSQL in `.env`)
 
 ### Installation
-```bash
-# Clone repository
-git clone https://github.com/your-repo/philexscholar.git
 
-# Install PHP dependencies
-composer install
+1.  **Clone the repository:**
+    ```bash
+    git clone [Your Repository Link Here] philexscholar
+    cd philexscholar
+    ```
 
-# Install Node dependencies
-npm install
+2.  **Install PHP dependencies:**
+    ```bash
+    composer install
+    ```
 
-# Configure environment
-cp .env.example .env
-php artisan key:generate
+3.  **Install Node dependencies:**
+    ```bash
+    npm install
+    # or yarn install
+    ```
 
-# Setup database
-php artisan migrate
-php artisan db:seed
+4.  **Configure Environment:**
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+    *   *Important:* Update the `.env` file with your database credentials (if not using SQLite) and any other necessary service keys (e.g., mail driver).
 
-# Start development servers
-php artisan serve
-npm run dev
-```
+5.  **Setup Database:**
+    ```bash
+    # Create an empty sqlite file (if using SQLite)
+    touch database/database.sqlite
+
+    # Run database migrations
+    php artisan migrate
+
+    # Optional: Seed database with initial/dummy data
+    # php artisan db:seed
+    ```
+
+6.  **Build Frontend Assets:**
+    ```bash
+    npm run build
+    # or yarn build
+    ```
+
+7.  **Start Development Servers:**
+    ```bash
+    # Start the Laravel development server (usually http://127.0.0.1:8000)
+    php artisan serve
+
+    # Start the Vite frontend development server (for hot module replacement)
+    npm run dev
+    # or yarn dev
+    ```
+
+8.  **Access the Application:** Open your browser and navigate to the address provided by `php artisan serve` (e.g., `http://localhost:8000`).
+
+---
+
+## ✨ Screenshots (Placeholder)
+
+*(Add screenshots of the application interface here once available to provide a visual preview.)*
+
+*   [Screenshot of Dashboard]
+*   [Screenshot of Application Form]
+*   [Screenshot of Admin Review Page]
+
+---
 
 ## 📚 Documentation
 
-- [Scholar's Guide](docs/scholar-guide.md)
-- [Administrator's Manual](docs/admin-guide.md)
-- [API Documentation](docs/api-docs.md)
-- [Development Guide](docs/dev-guide.md)
+Detailed documentation is crucial for users and developers.
+
+*   **User Guides:** (Planned / Under Development)
+    *   Scholar's Guide (`docs/scholar-guide.md`)
+    *   Administrator's Manual (`docs/admin-guide.md`)
+*   **Development:**
+    *   API Documentation (if applicable) (`docs/api-docs.md`)
+    *   Development Guide (`docs/dev-guide.md`) - *Covers coding standards, architecture details, etc.*
+
+*(Note: Update links above or state status clearly if documentation is hosted elsewhere or not yet complete).*
+
+---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please check our [Contributing Guidelines](CONTRIBUTING.md).
+We welcome contributions from the community! Whether it's bug reporting, feature suggestions, or code contributions, your help is appreciated.
 
-1. Fork the repository
-2. Create your feature branch
-3. Commit changes
-4. Push to branch
-5. Open a Pull Request
+1.  Please read our [Contributing Guidelines](CONTRIBUTING.md) before starting.
+2.  Check the [Issues](https://github.com/IT-CS-NC-Philex-Scholars/philexscholar/issues) tab for existing bugs or feature requests.
+3.  Fork the repository, create your feature branch (`git checkout -b feature/AmazingFeature`), commit your changes, and open a Pull Request.
+
+---
 
 ## 📄 License
 
-MIT License - See [LICENSE](LICENSE) file
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
   <p>Built with ❤️ by the Philex Mines Technology Team</p>
   <p>
-    <a href="https://github.com/IT-CS-NC-Philex-Scholars">GitHub</a> ·
-    <a href="https://philexscholar.com">Website</a> ·
-    <a href="mailto:support@philexscholar.com">Support</a>
+    <a href="https://github.com/IT-CS-NC-Philex-Scholars/philexscholar">GitHub Repository</a> ·
+    <a href="[Link to Deployed App if applicable]">Website</a> ·
+    <a href="mailto:support@philexscholar.com">Contact Support</a>
   </p>
 </div>
+```
+
+**Key Improvements:**
+
+1.  **Enhanced Badges:** Used `style=for-the-badge` for larger, more prominent status badges. Added logos to tech stack badges for better visual recognition. Linked badges to relevant places (repo, releases, license).
+2.  **Compelling Overview:** Starts by stating the problem and positioning PhilexScholar as the solution. Clearly mentions the target audience.
+3.  **Dedicated Project Goal:** Explicitly lists the key objectives of the project.
+4.  **Improved Key Features:** Uses clear subheadings and bullet points with emojis for better readability and visual appeal compared to nested `<details>`. Descriptions are slightly more action-oriented.
+5.  **Architecture Explanation:** Added brief text explaining the role of each component in the VILT stack alongside the Mermaid diagram.
+6.  **Tech Stack Table:** Presented the tech stack in a more structured table format within the `<details>` tag for clarity.
+7.  **Visual Roadmap:** Added a detailed roadmap table with columns for Feature/Milestone, Description, Status (using emojis ✅⏳📅💡), and Target ETA. This provides a clear view of progress and future plans.
+8.  **Clearer Getting Started:** Numbered steps, clarified database setup (including creating the SQLite file), added the `npm run build` step, and mentioned accessing the app. Added placeholder for the repository link.
+9.  **Screenshots Placeholder:** Added a dedicated section to indicate where screenshots should go, making the README feel more complete even without them.
+10. **Documentation Status:** Made it clearer that documentation might be planned or under development and suggested updating links.
+11. **Contributing Section:** Slightly more inviting tone.
+12. **Footer Links:** Updated links and added placeholders for the repository and deployed app.
+13. **Formatting:** Improved use of headings, horizontal rules (`---`), code blocks, and overall structure for better readability.

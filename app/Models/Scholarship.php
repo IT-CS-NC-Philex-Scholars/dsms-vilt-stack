@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Requirement;
+use App\Models\Scholar;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Scholarship extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
 
         protected $fillable = [
             'name',
@@ -26,5 +29,10 @@ class Scholarship extends Model
         public function scholars()
         {
             return $this->belongsToMany(Scholar::class, 'requirements');
+        }
+
+        public function requirements()
+        {
+            return $this->hasMany(Requirement::class);
         }
 }

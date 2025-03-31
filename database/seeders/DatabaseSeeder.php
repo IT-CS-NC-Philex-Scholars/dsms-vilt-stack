@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB; // Import DB facade
 
 final class DatabaseSeeder extends Seeder
 {
@@ -16,15 +14,23 @@ final class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->withPersonalTeam()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => Hash::make('password'),
-        ]);
+        DB::transaction(function () { // Use transaction for atomicity
+            $this->call([
+                // Core Setup First
+                RoleAndPermissionSeeder::class,
+                UserSeeder::class,
 
-        $this->call([
-            Schools::class,
-            Scholar::class
-        ]);
+                // Foundational Data
+                Schools::class,       // Uses SchoolFactory (or static)
+                ScholarshipSeeder::class, // Uses ScholarshipFactory
+
+                // Dependent Data
+                Scholar::class,         // Uses ScholarFactory, needs Schools
+                RequirementSeeder::class, // Links Scholars and Scholarships
+                AnnouncementSeeder::class,// Uses AnnouncementFactory
+            ]);
+        });
+
+        $this->command->info('Database seeding completed successfully!');
     }
 }

@@ -97,6 +97,7 @@ class RequirementResource extends Resource
                         ]);
                 }
 
+
     public static function getRelations(): array
     {
         return [

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+
 
 final class DatabaseSeeder extends Seeder
 {
@@ -16,52 +18,25 @@ final class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Disable foreign key checks for SQLite
-        DB::statement('PRAGMA foreign_keys = OFF');
 
-        // First create roles and permissions
-        $this->call(RoleSeeder::class);
+        DB::transaction(function () { // Use transaction for atomicity
+            $this->call([
+                // Core Setup First
+                RoleAndPermissionSeeder::class,
+                UserSeeder::class,
 
-        // Create admin user
-        User::factory()->withPersonalTeam()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'password' => Hash::make('password'),
-        ]);
+                // Foundational Data
+                Schools::class,       // Uses SchoolFactory (or static)
+                ScholarshipSeeder::class, // Uses ScholarshipFactory
 
-        // Create additional users for different roles
-        User::factory()->create([
-            'name' => 'Scholarship Officer',
-            'email' => 'officer@example.com',
-            'password' => Hash::make('password'),
-        ]);
+                // Dependent Data
+                Scholar::class,         // Uses ScholarFactory, needs Schools
+                RequirementSeeder::class, // Links Scholars and Scholarships
+                AnnouncementSeeder::class,// Uses AnnouncementFactory
+            ]);
+        });
 
-        User::factory()->create([
-            'name' => 'Requirement Verifier',
-            'email' => 'verifier@example.com',
-            'password' => Hash::make('password'),
-        ]);
+        $this->command->info('Database seeding completed successfully!');
 
-        // Create an admin user
-        $admin = \App\Models\User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-        ]);
-        $admin->assignRole('admin');
-
-        // Run other seeders
-        $this->call([
-            Schools::class,
-            Scholar::class,
-            ScholarshipSeeder::class,
-            RequirementSeeder::class,
-            AnnouncementSeeder::class,
-            ScholarScholarshipSeeder::class,
-            ScholarshipRequirementSeeder::class,
-            // ScholarshipAnnouncementSeeder::class,
-        ]);
-
-        // Enable foreign key checks
-        DB::statement('PRAGMA foreign_keys = ON');
     }
 }

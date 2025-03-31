@@ -2,11 +2,13 @@
 
 namespace Database\Seeders;
 
+
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
 use App\Models\ScholarshipStatus;
 use App\Models\Scholarship;
+
 
 class ScholarshipSeeder extends Seeder
 {
@@ -15,6 +17,7 @@ class ScholarshipSeeder extends Seeder
      */
     public function run(): void
     {
+
         $faker = Faker::create();
 
                 $scholarshipTypes = [
@@ -87,6 +90,7 @@ class ScholarshipSeeder extends Seeder
                         ]);
                     }
                 }
+
 
     }
 }

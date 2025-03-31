@@ -1,31 +1,35 @@
 <script setup>
-import FeaturesCard from "@/Components/FeaturesCard.vue";
-import PricingCard from "@/Components/PricingCard.vue";
+
+
 import Accordion from "@/Components/shadcn/ui/accordion/Accordion.vue";
 import AccordionContent from "@/Components/shadcn/ui/accordion/AccordionContent.vue";
 import AccordionItem from "@/Components/shadcn/ui/accordion/AccordionItem.vue";
 import AccordionTrigger from "@/Components/shadcn/ui/accordion/AccordionTrigger.vue";
 import Badge from "@/Components/shadcn/ui/badge/Badge.vue";
 import Button from "@/Components/shadcn/ui/button/Button.vue";
-import Terminal from "@/Components/Terminal.vue";
-import { useSeoMetaTags } from "@/Composables/useSeoMetaTags.js";
-import WebLayout from "@/Layouts/WebLayout.vue";
-import { Icon } from "@iconify/vue";
-import { Link } from "@inertiajs/vue3";
+
+import { ChevronDown } from "lucide-vue-next";
+
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/Components/shadcn/ui/card";
-import { ScrollArea } from "@/Components/shadcn/ui/scroll-area";
+
+} from "@/Components/shadcn/ui/card"; // Import Card components
 import {
+  Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-  Tabs,
 } from "@/Components/shadcn/ui/tabs";
+// Keep utilities
+import { useSeoMetaTags } from "@/Composables/useSeoMetaTags.js";
+import WebLayout from "@/Layouts/WebLayout.vue";
+import { Icon } from "@iconify/vue";
+import { Link } from "@inertiajs/vue3";
+
 
 const props = defineProps({
   canLogin: {
@@ -34,544 +38,589 @@ const props = defineProps({
   canRegister: {
     type: Boolean,
   },
+  appName: {
+    type: String,
+    required: true,
+  },
+  phpVersion: {
+    type: String,
+    required: true,
+  },
+  laravelVersion: {
+    type: String,
+    required: true,
+  },
   seo: {
     type: Object,
     default: () => null,
   },
 });
 
+
 useSeoMetaTags(props.seo);
 
-const features = [
+
+
+// Features based on README
+const studentFeatures = [
   {
-    icon: "📝",
-    title: "Easy Application Process",
+
+    icon: "lucide:edit",
+    title: "Smart Application Portal",
     description:
-      "Streamlined scholarship application process with intuitive forms and document upload capabilities.",
+      "Intuitive step-by-step forms guide you through the application process.",
   },
   {
-    icon: "🔍",
-    title: "Application Tracking",
+    icon: "lucide:file-up",
+    title: "Easy Document Upload",
     description:
-      "Real-time tracking of application status, requirements completion, and approval stages.",
+      "Securely upload and manage all required scholarship documents online.",
   },
   {
-    icon: "📊",
-    title: "Progress Monitoring",
+    icon: "lucide:eye",
+    title: "Real-Time Status Tracking",
     description:
-      "Comprehensive dashboard to monitor academic performance, requirements, and scholarship status.",
+      "Monitor your application progress and receive timely updates.",
   },
   {
-    icon: "📄",
-    title: "Document Management",
+    icon: "lucide:bell",
+    title: "Automated Notifications",
     description:
-      "Secure storage and management of academic records, certificates, and other required documents.",
+      "Stay informed about deadlines, status changes, and requirements.",
   },
   {
-    icon: "📱",
-    title: "Communication Hub",
-    description:
-      "Integrated messaging system for updates, announcements, and direct communication with administrators.",
-  },
-  {
-    icon: "⚡",
-    title: "Quick Requirements Review",
-    description:
-      "Efficient system for reviewing and approving submitted requirements with automated notifications.",
-  },
-  {
-    icon: "📈",
-    title: "Performance Analytics",
-    description:
-      "Detailed analytics and reporting tools for tracking scholar performance and program effectiveness.",
-  },
-  {
-    icon: "🔐",
-    title: "Secure Access",
-    description:
-      "Role-based access control ensuring data privacy and secure information handling.",
-  },
-  {
-    icon: "🎓",
-    title: "Academic Support",
-    description:
-      "Tools for monitoring academic progress and providing timely support to scholars.",
+    icon: "lucide:layout-dashboard",
+    title: "Personalized Dashboard",
+    description: "Manage your profile, track payments, and communicate easily.",
   },
 ];
 
-const systemFeatures = [
-  "Easy application submission",
-  "Real-time status tracking",
-  "Secure document management",
-  "Automated notifications",
-  "Performance monitoring",
-  "Communication tools",
-];
-
-const faqCategories = [
+const adminFeatures = [
   {
-    id: "general",
-    icon: "lucide:info",
-    title: "General Information",
-    questions: [
-      {
-        question: "What types of scholarships are available?",
-        answer: "We offer several types of scholarships including:",
-        details: [
-          "Academic Excellence Scholarships",
-          "Financial Need-based Grants",
-          "Mining Community Development Scholarships",
-          "Special Skills and Talents Grants",
-        ],
-      },
-      {
-        question: "Who is eligible to apply?",
-        answer:
-          "Eligibility varies by program, but general requirements include:",
-        details: [
-          "Must be a resident of covered mining communities",
-          "Enrolled or planning to enroll in an accredited institution",
-          "Maintaining required academic standing",
-          "Demonstrated financial need",
-        ],
-      },
-    ],
-  },
-  {
-    id: "application",
-    icon: "lucide:file-text",
-    title: "Application Process",
-    questions: [
-      {
-        question: "What documents do I need to prepare?",
-        answer: "Essential documents for application include:",
-        details: [
-          "Valid government ID",
-          "Latest grade reports/transcript",
-          "Proof of enrollment/admission",
-          "Family income certificate",
-          "Recommendation letters",
-          "Personal statement",
-        ],
-      },
-      {
-        question: "How long does the application process take?",
-        answer: "The typical timeline breaks down as follows:",
-        details: [
-          "Initial application review: 1-2 weeks",
-          "Document verification: 1 week",
-          "Committee evaluation: 2 weeks",
-          "Final decision: 1 week",
-          "Total process: Approximately 4-6 weeks",
-        ],
-      },
-    ],
-  },
-  {
-    id: "financial",
-    icon: "lucide:wallet",
-    title: "Financial Aspects",
-    questions: [
-      {
-        question: "How much financial support is provided?",
-        answer: "Scholarship amounts vary by program and level:",
-        details: [
-          "High School: Up to ₱30,000 per year",
-          "Undergraduate: Up to ₱50,000 per year",
-          "Additional allowances for books and supplies",
-          "Special grants for exceptional cases",
-        ],
-      },
-      {
-        question: "How are payments disbursed?",
-        answer: "Scholarship funds are released through:",
-        details: [
-          "Direct deposit to student account",
-          "Semestral disbursement schedule",
-          "Performance-based installments",
-          "Monitoring of fund utilization",
-        ],
-      },
-    ],
-  },
-  {
-    id: "maintenance",
-    icon: "lucide:award",
-    title: "Maintaining Your Scholarship",
-    questions: [
-      {
-        question: "What are the requirements to maintain my scholarship?",
-        answer: "To maintain your scholarship status, you need to:",
-        details: [
-          "Maintain minimum GPA requirements",
-          "Submit regular progress reports",
-          "Participate in community programs",
-          "Comply with attendance requirements",
-        ],
-      },
-      {
-        question: "Can my scholarship be renewed?",
-        answer: "Scholarship renewal depends on:",
-        details: [
-          "Academic performance",
-          "Compliance with program requirements",
-          "Available funding",
-          "Continued eligibility",
-        ],
-      },
-    ],
-  },
-];
-import { ref } from "vue";
-
-const activeCategory = ref(faqCategories[0].id);
-const activeQuestion = ref(null);
-const applicationSteps = [
-  {
-    number: 1,
-    title: "Create Your Account",
+    icon: "lucide:users",
+    title: "Efficient Application Review",
     description:
-      "Sign up and verify your email to access the application portal",
+      "Process applications in bulk with streamlined verification tools.",
+  },
+  {
+    icon: "lucide:file-check-2",
+    title: "Automated Eligibility Checks",
+    description:
+      "Quickly identify qualified candidates based on defined criteria.",
+  },
+  {
+    icon: "lucide:dollar-sign",
+    title: "Streamlined Financials",
+    description:
+      "Manage disbursements, track payment schedules, and generate reports.",
+  },
+  {
+    icon: "lucide:sliders-horizontal",
+    title: "Flexible Program Admin",
+    description:
+      "Configure eligibility rules, workflows, and program settings.",
+  },
+  {
+    icon: "lucide:bar-chart-3",
+    title: "Insightful Analytics",
+    description:
+      "Gain valuable insights into application trends and program performance.",
+  },
+];
+
+// How it Works Steps
+const processSteps = [
+  {
+    id: 1,
+    title: "Register & Apply",
+    description:
+      "Students create an account and submit their application through the portal.",
     icon: "lucide:user-plus",
-    tips: [
-      "Use an email you check regularly",
-      "Create a strong password",
-      "Keep your login credentials secure",
-    ],
   },
   {
-    number: 2,
-    title: "Complete Your Profile",
-    description: "Fill in your personal and academic information",
-    icon: "lucide:pencil",
-    tips: [
-      "Have your basic information ready",
-      "Be accurate with your details",
-      "Double-check all entries",
-    ],
+    id: 2,
+    title: "Document Submission",
+    description: "Upload required documents securely for verification.",
+    icon: "lucide:file-up",
   },
   {
-    number: 3,
-    title: "Submit Requirements",
-    description: "Upload all necessary documents and forms",
-    icon: "lucide:file-plus",
-    tips: [
-      "Prepare documents in advance",
-      "Ensure clear, readable scans",
-      "Check file size limits",
-    ],
+    id: 3,
+    title: "Admin Review",
+    description: "Administrators review applications and verify eligibility.",
+    icon: "lucide:search-check",
   },
   {
-    number: 4,
-    title: "Application Review",
-    description: "Wait for the evaluation of your application",
-    icon: "lucide:check-circle",
-    tips: [
-      "Monitor your dashboard regularly",
-      "Respond promptly to any queries",
-      "Keep documents updated",
-    ],
+    id: 4,
+    title: "Award & Notification",
+    description:
+      "Successful applicants are notified and awarded the scholarship.",
+    icon: "lucide:award",
+  },
+  {
+    id: 5,
+    title: "Track & Manage",
+    description:
+      "Students and admins track progress and manage scholarship details online.",
+    icon: "lucide:list-checks",
   },
 ];
-const applicationUrl = "/apply-now";
+
+// FAQ Items based on README context
+const faqItems = [
+  {
+    value: "item-1",
+    title: "Who is PhilexScholar for?",
+    content:
+      "PhilexScholar is designed for students applying for scholarships offered by Philex Mines and the administrators managing these programs.",
+  },
+  {
+    value: "item-2",
+    title: "How do I apply for a scholarship?",
+    content:
+      "If you are eligible, you can register for an account and follow the step-by-step application process within the portal. Ensure you have all required documents ready for upload.",
+  },
+  {
+    value: "item-3",
+    title: "How can I track my application status?",
+    content:
+      "Once you submit your application, you can log in to your student dashboard to see the real-time status and receive notifications about any updates.",
+  },
+  {
+    value: "item-4",
+    title: "Is my data secure?",
+    content:
+      "Yes, we prioritize data security. PhilexScholar uses modern security practices and technologies like Laravel Sanctum to protect your personal information and documents.",
+  },
+];
+
+// Tech Stack Logos (adjust as needed)
+const techStack = [
+  { icon: "logos:laravel", name: "Laravel" },
+  { icon: "logos:vue", name: "Vue.js" },
+  {
+    icon: "simple-icons:inertia",
+    name: "Inertia.js",
+    color: "text-purple-500",
+  },
+  { icon: "logos:tailwindcss-icon", name: "Tailwind CSS" },
+  { icon: "logos:sqlite", name: "SQLite" },
+];
+
 </script>
 
 <template>
-  <WebLayout :can-login="canLogin" :can-register="canRegister">
+  <WebLayout
+    :can-login="canLogin"
+    :can-register="canRegister"
+    :app-name="appName"
+  >
     <!-- Hero Section -->
-    <section
-      class="relative overflow-hidden border-b bg-background py-20 sm:py-32"
-    >
-      <div class="container mx-auto px-4 text-center">
-        <!-- Badge -->
-        <div class="mb-8 inline-flex justify-center">
+
+    <section class="relative border-b bg-background overflow-hidden">
+      <!-- Enhanced Background -->
+      <div
+        aria-hidden="true"
+        class="absolute inset-0 -z-10 opacity-50 dark:opacity-60"
+      >
+        <!-- Grid -->
+        <div
+          class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:36px_36px]"
+        />
+        <!-- Radial Gradient Mask -->
+        <div
+          class="absolute inset-0 bg-background [mask-image:radial-gradient(ellipse_50%_60%_at_50%_0%,#000_70%,transparent_110%)]"
+        />
+        <!-- Subtle Glow -->
+        <div
+          class="absolute left-1/2 top-0 -z-20 -translate-x-1/2 h-[450px] w-[700px] rounded-full bg-primary/10 blur-[120px]"
+        />
+      </div>
+
+
+      <div
+        class="container relative mx-auto px-4 py-32 sm:py-40 lg:py-48 text-center"
+      >
+        <!-- Optional Badge -->
+        <div class="mb-6 inline-flex justify-center">
           <Badge
             variant="outline"
-            class="rounded-full border bg-primary/10 px-4 py-1 text-xs sm:text-sm"
+            class="rounded-full border bg-primary/10 px-4 py-1.5 text-sm font-medium"
           >
-            ✨ Streamlined Scholarship Management System
+
+            <Icon icon="lucide:sparkles" class="mr-1.5 h-4 w-4 text-primary" />
+            Now Accepting Applications!
           </Badge>
         </div>
 
-        <!-- Main Heading -->
-        <div class="mx-auto max-w-4xl">
-          <h1
-            class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
-            :style="{ contain: 'layout paint' }"
-          >
-            <span class="block text-foreground">ScholarTrack</span>
-            <span
-              class="mt-2 block bg-linear-to-r from-blue-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent"
-            >
-              Application & Progress Tracking
-            </span>
-          </h1>
-        </div>
-
-        <!-- Subtitle -->
-        <p
-          class="mx-auto mt-6 max-w-2xl text-center text-base text-muted-foreground sm:text-lg md:text-xl"
-          :style="{ contain: 'layout paint' }"
-          fetchpriority="high"
+        <!-- Main Heading - Emphasis on Typography -->
+        <h1
+          class="text-5xl font-extrabold tracking-tighter text-foreground sm:text-6xl md:text-7xl lg:text-8xl"
+          :style="{ textWrap: 'balance' }"
         >
-          Simplifying scholarship management with comprehensive tracking,
-          monitoring, and support tools.
+          Welcome to <span class="text-primary">PhilexScholar</span>
+        </h1>
+        <p
+          class="mt-6 text-xl font-normal text-muted-foreground sm:text-2xl md:text-3xl"
+          :style="{ textWrap: 'balance' }"
+        >
+          Your Digital Hub for Philex Mines Scholarships.
         </p>
 
-        <!-- CTA Buttons -->
-        <div class="mt-10 flex items-center justify-center gap-4 flex-row">
+        <!-- Subtitle - Clear but secondary -->
+
+        <p
+          class="mx-auto mt-8 max-w-3xl text-lg text-muted-foreground/80"
+          :style="{ textWrap: 'pretty' }"
+          fetchpriority="high"
+        >
+
+          Streamlining the entire scholarship process – from application and
+          document submission to tracking and disbursement – all in one secure,
+          modern platform.
+
+        </p>
+
+        <!-- CTA Buttons - Clear Action -->
+        <div
+          class="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
+        >
           <Button
-            as="a"
-            :href="applicationUrl"
-            size="lg"
-            class="w-full sm:w-auto"
+
+            v-if="canRegister"
+            :as="Link"
+            href="/register"
+            size="xl"
+            class="w-full sm:w-auto px-8 py-3"
           >
-            Apply Now
+            <Icon icon="lucide:user-plus" class="mr-2 h-5 w-5" />
+            Register to Apply
           </Button>
           <Button
-            as="a"
-            :href="route('login')"
-            size="lg"
+            v-if="canLogin"
+            :as="Link"
+            href="/login"
+            size="xl"
             variant="outline"
-            class="w-full sm:w-auto"
+            class="w-full sm:w-auto px-8 py-3"
           >
-            <Icon icon="lucide:user" class="size-4" aria-hidden="true" />
-            Track Application
+            <Icon icon="lucide:log-in" class="mr-2 h-5 w-5" />
+            Login to Dashboard
           </Button>
         </div>
 
-        <!-- Trust Indicators -->
-        <div class="mt-16 sm:mt-24">
-          <p class="text-sm text-muted-foreground">
-            Trusted by educational institutions
-          </p>
+      </div>
+    </section>
+
+
+    <!-- Features Section -->
+    <section id="features" class="container mx-auto px-4 py-24 sm:py-32">
+      <div class="mx-auto max-w-3xl text-center mb-16">
+        <h2
+          class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+        >
+          Empowering Futures, Simplified.
+        </h2>
+        <p class="mt-4 text-lg text-muted-foreground sm:text-xl">
+          PhilexScholar offers dedicated features tailored for both students and
+          administrators.
+        </p>
+
+      </div>
+
+      <Tabs default-value="students" class="w-full max-w-5xl mx-auto">
+        <TabsList class="grid w-full grid-cols-2 h-12">
+          <TabsTrigger value="students" class="text-base h-full">
+            <Icon icon="lucide:graduation-cap" class="mr-2 h-5 w-5" />
+            For Students
+          </TabsTrigger>
+          <TabsTrigger value="administrators" class="text-base h-full">
+            <Icon icon="lucide:user-cog" class="mr-2 h-5 w-5" />
+            For Administrators
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="students" class="mt-10">
           <div
-            class="mt-4 flex flex-wrap items-center justify-center gap-6 sm:gap-8"
+            class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8"
           >
-            <!-- Add relevant educational institution logos here -->
+            <Card
+              v-for="feature in studentFeatures"
+              :key="feature.title"
+              class="group relative overflow-hidden border-border/50 hover:border-primary/50 transition-colors duration-300 bg-card"
+            >
+              <!-- Optional subtle gradient border effect on hover -->
+              <!-- <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary/10 via-transparent to-transparent"></div> -->
+
+              <CardHeader class="relative z-10 pb-4">
+                <div
+                  class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary"
+                >
+                  <Icon :icon="feature.icon" class="h-6 w-6" />
+                </div>
+                <CardTitle class="text-lg font-semibold tracking-tight">
+                  {{ feature.title }}
+                </CardTitle>
+              </CardHeader>
+              <CardContent class="relative z-10">
+                <p class="text-sm text-muted-foreground">
+                  {{ feature.description }}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="administrators" class="mt-10">
+          <div
+            class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8"
+          >
+            <Card
+              v-for="feature in adminFeatures"
+              :key="feature.title"
+              class="group relative overflow-hidden border-border/50 hover:border-primary/50 transition-colors duration-300 bg-card"
+            >
+              <CardHeader class="relative z-10 pb-4">
+                <div
+                  class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary"
+                >
+                  <Icon :icon="feature.icon" class="h-6 w-6" />
+                </div>
+                <CardTitle class="text-lg font-semibold tracking-tight">
+                  {{ feature.title }}
+                </CardTitle>
+              </CardHeader>
+              <CardContent class="relative z-10">
+                <p class="text-sm text-muted-foreground">
+                  {{ feature.description }}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </section>
+
+
+    <!-- How it Works Section -->
+    <section
+      id="how-it-works"
+      class="border-t bg-gradient-to-b from-background to-muted/30 py-24 sm:py-32"
+    >
+      <div class="container mx-auto px-4">
+        <div class="mx-auto max-w-3xl text-center mb-16">
+          <h2
+            class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+          >
+            Simple Steps to Success
+          </h2>
+          <p class="mt-4 text-lg text-muted-foreground sm:text-xl">
+            Follow our straightforward process for scholarship application and
+            management.
+          </p>
+        </div>
+
+        <div class="relative max-w-5xl mx-auto">
+          <!-- Connecting Line -->
+          <div
+            aria-hidden="true"
+            class="absolute left-0 right-0 top-6 h-1 bg-border rounded-full md:left-6 md:right-6"
+          ></div>
+
+          <!-- Steps Grid -->
+          <div class="relative grid grid-cols-1 gap-12 md:grid-cols-5 md:gap-8">
+            <div
+              v-for="(step, index) in processSteps"
+              :key="step.id"
+              class="flex flex-col items-center text-center md:items-start md:text-left"
+            >
+              <!-- Step Node (Circle + Icon) -->
+              <div
+                class="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary bg-background text-primary mb-4 ring-4 ring-background"
+              >
+                <!-- <span class="font-bold text-lg">{{ index + 1 }}</span> -->
+                <Icon :icon="step.icon" class="h-6 w-6" />
+              </div>
+
+              <!-- Step Content -->
+              <div class="mt-2">
+                <h3 class="text-lg font-semibold text-foreground">
+                  {{ step.title }}
+                </h3>
+                <p class="mt-1 text-sm text-muted-foreground">
+                  {{ step.description }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Background Effects -->
-      <div
-        class="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]"
-      />
-      <div
-        class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]"
-      />
     </section>
 
-    <!-- Features Grid -->
-    <section id="features" class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-      <h2 class="text-center text-2xl font-bold tracking-tight sm:text-4xl">
-        System Features ✨
-      </h2>
-      <p class="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-        Everything you need to manage your scholarship application and track
-        your progress.
-      </p>
-
-      <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        <FeaturesCard
-          v-for="feature in features"
-          :key="feature.title"
-          :icon="feature.icon"
-          :title="feature.title"
-          :description="feature.description"
-        />
+    <!-- Technology Section -->
+    <section id="tech-stack" class="border-t py-16 sm:py-24">
+      <div class="container mx-auto px-4">
+        <div class="text-center">
+          <h2
+            class="text-base font-semibold uppercase tracking-wider text-primary"
+          >
+            Built with Reliable Technology
+          </h2>
+          <p
+            class="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+          >
+            Powered by the VILT Stack
+          </p>
+          <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            Leveraging modern tools for a robust, secure, and user-friendly
+            experience.
+          </p>
+        </div>
+        <div class="mt-12">
+          <div
+            class="flex flex-wrap items-center justify-center gap-8 sm:gap-10 md:gap-14"
+          >
+            <div
+              v-for="tech in techStack"
+              :key="tech.name"
+              class="flex flex-col items-center gap-2 text-center"
+            >
+              <Icon
+                :icon="tech.icon"
+                class="h-10 w-10 opacity-75 transition-opacity hover:opacity-100"
+                :class="tech.color || 'text-muted-foreground'"
+              />
+              <span class="text-xs font-medium text-muted-foreground">{{
+                tech.name
+              }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
     <!-- FAQ Section -->
-    <section id="faq" class="border-t">
-      <div class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div class="mx-auto max-w-4xl text-center">
-          <h2 class="text-center text-2xl font-bold tracking-tight sm:text-4xl">
-            Frequently Asked Questions
-          </h2>
-          <p class="mt-4 text-muted-foreground">
-            Find answers to common questions about our scholarship programs and
-            application process
-          </p>
-        </div>
-
-        <div class="mt-16">
-          <div class="grid gap-8 lg:grid-cols-[300px_1fr]">
-            <!-- Category Navigation -->
-            <Card class="h-fit">
-              <CardContent class="p-4">
-                <nav class="space-y-2">
-                  <button
-                    v-for="category in faqCategories"
-                    :key="category.id"
-                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-accent"
-                    :class="{ 'bg-accent': activeCategory === category.id }"
-                    @click="activeCategory = category.id"
-                  >
-                    <Icon :icon="category.icon" class="h-5 w-5" />
-                    <span>{{ category.title }}</span>
-                  </button>
-                </nav>
-              </CardContent>
-            </Card>
-
-            <!-- FAQ Content -->
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {{
-                    faqCategories.find((c) => c.id === activeCategory)?.title
-                  }}
-                </CardTitle>
-                <CardDescription>
-                  Click on any question to see the detailed answer
-                </CardDescription>
-              </CardHeader>
-              <CardContent class="p-6">
-                <ScrollArea class="h-[500px] pr-4">
-                  <div class="space-y-4">
-                    <div
-                      v-for="(category, idx) in faqCategories"
-                      :key="idx"
-                      v-show="category.id === activeCategory"
-                    >
-                      <div
-                        v-for="(item, qIdx) in category.questions"
-                        :key="qIdx"
-                        class="rounded-lg border transition-all duration-200 hover:shadow-md"
-                        :class="{
-                          'border-primary':
-                            activeQuestion === `${category.id}-${qIdx}`,
-                        }"
-                      >
-                        <button
-                          class="flex w-full items-center justify-between p-4 text-left"
-                          @click="
-                            activeQuestion =
-                              activeQuestion === `${category.id}-${qIdx}`
-                                ? null
-                                : `${category.id}-${qIdx}`
-                          "
-                        >
-                          <h3 class="font-medium">{{ item.question }}</h3>
-                          <Icon
-                            :icon="
-                              activeQuestion === `${category.id}-${qIdx}`
-                                ? 'lucide:minus'
-                                : 'lucide:plus'
-                            "
-                            class="h-5 w-5 shrink-0"
-                          />
-                        </button>
-
-                        <div
-                          v-if="activeQuestion === `${category.id}-${qIdx}`"
-                          class="border-t px-4 py-3"
-                        >
-                          <p class="text-sm text-muted-foreground">
-                            {{ item.answer }}
-                          </p>
-                          <ul class="mt-2 space-y-1">
-                            <li
-                              v-for="(detail, dIdx) in item.details"
-                              :key="dIdx"
-                              class="flex items-center gap-2 text-sm text-muted-foreground"
-                            >
-                              <Icon
-                                icon="lucide:check"
-                                class="h-4 w-4 text-green-500"
-                              />
-                              {{ detail }}
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        <!-- Help Center Link -->
-        <div class="mt-12 text-center">
-          <p class="text-sm text-muted-foreground">
-            Can't find what you're looking for?
-          </p>
-          <Button variant="link" as="a" href="/help-center" class="mt-2">
-            Visit our Help Center
-            <Icon icon="lucide:external-link" class="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </section>
-
-    <!-- New How to Apply Section -->
-    <section id="how-to-apply" class="border-t">
-      <div class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div class="mx-auto max-w-4xl text-center">
-          <h2 class="text-center text-2xl font-bold tracking-tight sm:text-4xl">
-            How to Apply
-          </h2>
-          <p class="mt-4 text-muted-foreground">
-            Follow these simple steps to start your scholarship journey
-          </p>
-        </div>
-
-        <div class="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          <Card
-            v-for="step in applicationSteps"
-            :key="step.number"
-            class="relative"
+    <section id="faq" class="border-t bg-muted/40 py-24 sm:py-32">
+      <div class="container mx-auto px-4">
+        <div class="mx-auto max-w-3xl text-center mb-16">
+          <h2
+            class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
           >
-            <CardHeader>
-              <div
-                class="absolute -top-4 left-4 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-white"
-              >
-                {{ step.number }}
-              </div>
-              <Icon :icon="step.icon" class="h-8 w-8 text-primary" />
-              <CardTitle>{{ step.title }}</CardTitle>
-              <CardDescription>{{ step.description }}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul class="list-disc pl-4 text-sm text-muted-foreground">
-                <li v-for="(tip, index) in step.tips" :key="index" class="mt-2">
-                  {{ tip }}
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
+            Have Questions?
+          </h2>
+          <p class="mt-4 text-lg text-muted-foreground sm:text-xl">
+            Find answers to common inquiries about the PhilexScholar program.
+          </p>
         </div>
+        <div class="mx-auto max-w-3xl">
+          <!-- Using Accordion for FAQ -->
+          <Accordion
+            type="single"
+            class="w-full space-y-4"
+            collapsible
+            default-value="item-1"
+          >
+            <AccordionItem
+              v-for="(item, index) in faqItems"
+              :key="item.value"
+              :value="item.value"
+              class="border rounded-lg bg-background shadow-sm transition-shadow hover:shadow-md overflow-hidden"
+            >
+              <AccordionTrigger
+                class="flex w-full items-center justify-between p-5 text-lg font-medium text-left hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=open]:bg-muted/50"
+                :aria-controls="`faq-content-${index}`"
+                :id="`faq-trigger-${index}`"
+              >
+                <span>{{ item.title }}</span>
+                <!-- Icon indicates state -->
+                <Icon
+                  icon="lucide:chevron-down"
+                  class="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180"
+                />
+                <!-- Using Lucide component directly:
+                    <ChevronDown class="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    -->
+              </AccordionTrigger>
+              <AccordionContent
+                class="px-5 pb-5 pt-0 text-base text-muted-foreground data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+                :id="`faq-content-${index}`"
+                :aria-labelledby="`faq-trigger-${index}`"
+                role="region"
+              >
+                {{ item.content }}
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
+        </div>
         <div class="mt-12 text-center">
-          <Button as="a" :href="applicationUrl" size="lg" class="gap-2">
-            <Icon icon="lucide:arrow-right" class="h-4 w-4" />
-            Start Your Application
-          </Button>
+          <p class="text-muted-foreground">
+            Can't find your answer?
+            <a
+              :href="supportEmail"
+              class="font-medium text-primary underline-offset-4 hover:underline"
+              >Contact Support</a
+            >.
+          </p>
         </div>
       </div>
     </section>
+    <section
+      class="relative border-t bg-background py-24 sm:py-32 overflow-hidden"
+    >
+      <!-- Background Elements -->
+      <div
+        aria-hidden="true"
+        class="absolute inset-0 -z-10 opacity-40 dark:opacity-50"
+      >
+        <div
+          class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"
+        />
+        <div
+          class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 h-[600px] w-[120%] rounded-full bg-gradient-radial from-primary/10 via-primary/5 to-transparent blur-[80px]"
+        />
+      </div>
 
-    <!-- CTA Section -->
-    <section class="border-t">
-      <div class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div class="rounded-2xl px-6 py-12 sm:p-16">
-          <div class="mx-auto max-w-2xl text-center">
-            <h2 class="text-3xl font-bold tracking-tight sm:text-6xl">
-              Ready to start your journey?
-            </h2>
-            <p class="mx-auto mt-4 max-w-xl text-lg">
-              Take the first step towards your educational goals.<br />
-              Apply for your scholarship today! 🎓
-            </p>
-            <div class="mt-8 flex justify-center gap-4">
-              <Button as="a" :href="applicationUrl" size="lg">
-                Apply Now
-              </Button>
-            </div>
+
+      <div class="container relative mx-auto px-4 z-10">
+        <div class="mx-auto max-w-3xl text-center">
+          <h2
+            class="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+          >
+            Ready to Start Your Journey?
+          </h2>
+          <p
+            class="mt-6 text-lg text-muted-foreground sm:text-xl"
+            :style="{ textWrap: 'pretty' }"
+          >
+            Join the community of Philex scholars. Register today to begin your
+            application or log in to manage your scholarship details with ease.
+            Secure your future, powered by PhilexScholar.
+          </p>
+          <div
+            class="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <Button
+              v-if="canRegister"
+              :as="Link"
+              href="/register"
+              size="xl"
+              class="w-full sm:w-auto px-10 py-3.5"
+            >
+              <Icon icon="lucide:user-plus" class="mr-2 h-5 w-5" />
+              Register Now
+            </Button>
+            <Button
+              v-if="canLogin"
+              :as="Link"
+              href="/login"
+              size="xl"
+              variant="outline"
+              class="w-full sm:w-auto px-10 py-3.5"
+            >
+              <Icon icon="lucide:log-in" class="mr-2 h-5 w-5" />
+              Login to Dashboard
+            </Button>
+
           </div>
         </div>
       </div>

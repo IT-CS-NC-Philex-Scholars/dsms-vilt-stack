@@ -1,10 +1,12 @@
 <script setup>
 import Button from "@/Components/shadcn/ui/button/Button.vue";
+
 import { Icon } from "@iconify/vue";
 import { Link, usePage } from "@inertiajs/vue3";
 import { useColorMode } from "@vueuse/core";
 import { ref, computed, watch } from "vue";
 // import { useRoute } from "vue-router"; // Import computed
+
 defineProps({
   canLogin: {
     type: Boolean,
@@ -23,6 +25,7 @@ watch(
 );
 const appName = computed(() => page.props.appName || "PhilexScholar"); // Get app name from props
 
+
 const mode = useColorMode({
   attribute: "class",
   modes: {
@@ -33,6 +36,7 @@ const mode = useColorMode({
 
 // Update navLinks for PhilexScholar
 const navLinks = [
+
   { label: "Features", href: "#features", external: false },
   { label: "How it Works", href: "#how-it-works", external: false },
   { label: "FAQ", href: "#faq", external: false },
@@ -48,6 +52,7 @@ const isMenuOpen = ref(false);
 
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value;
+
 }
 
 // Define toggleMobileMenu if it was missing
@@ -75,10 +80,12 @@ function scrollToSection(event, href) {
     // Close mobile menu if navigating away
     isMenuOpen.value = false;
   }
+
 }
 </script>
 
 <template>
+
   <div class="min-h-screen flex flex-col bg-background text-foreground">
     <header
       class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/90 backdrop-blur-lg"
@@ -142,36 +149,45 @@ function scrollToSection(event, href) {
                 href="/register"
               >
                 Register
+
               </Button>
             </template>
             <Button
               v-else
               variant="outline"
+
               size="sm"
               :as="Link"
               href="/dashboard"
             >
+
               Dashboard
             </Button>
           </div>
 
+
           <!-- Theme Toggle -->
+
           <Button
             variant="ghost"
             size="icon"
             aria-label="Toggle Theme"
+
             class="h-9 w-9 sm:h-10 sm:w-10"
             @click="mode = mode === 'dark' ? 'light' : 'dark'"
           >
             <Icon
               class="text-muted-foreground h-5 w-5"
+
               :icon="mode === 'dark' ? 'lucide:sun' : 'lucide:moon'"
             />
           </Button>
 
+
           <!-- Mobile Menu Button -->
           <Button
             class="md:hidden h-9 w-9 sm:h-10 sm:w-10"
+
             variant="ghost"
             size="icon"
             aria-label="Toggle menu"
@@ -185,6 +201,7 @@ function scrollToSection(event, href) {
           </Button>
         </div>
       </div>
+
 
       <!-- Mobile Menu Overlay -->
       <transition
@@ -352,6 +369,7 @@ function scrollToSection(event, href) {
                        </a>
                    </div>
                    -->
+
           </div>
         </div>
 

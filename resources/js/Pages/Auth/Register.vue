@@ -1,38 +1,66 @@
 <script setup>
-import InputError from '@/Components/InputError.vue'
-import AuthenticationCardLogo from '@/Components/LogoRedirect.vue'
-import Button from '@/Components/shadcn/ui/button/Button.vue'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/shadcn/ui/card'
-
-import Checkbox from '@/Components/shadcn/ui/checkbox/Checkbox.vue'
-import Input from '@/Components/shadcn/ui/input/Input.vue'
-import Label from '@/Components/shadcn/ui/label/Label.vue'
-import { useSeoMetaTags } from '@/Composables/useSeoMetaTags.js'
-import { Link, useForm } from '@inertiajs/vue3'
-import { inject } from 'vue'
+import InputError from "@/Components/InputError.vue";
+import AuthenticationCardLogo from "@/Components/LogoRedirect.vue";
+import Button from "@/Components/shadcn/ui/button/Button.vue";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/Components/shadcn/ui/card";
+import Checkbox from "@/Components/shadcn/ui/checkbox/Checkbox.vue";
+import Input from "@/Components/shadcn/ui/input/Input.vue";
+import Label from "@/Components/shadcn/ui/label/Label.vue";
+import Sonner from "@/Components/shadcn/ui/sonner/Sonner.vue";
+import { useSeoMetaTags } from "@/Composables/useSeoMetaTags.js";
+import { Link, useForm, usePage } from "@inertiajs/vue3";
+import { inject, onMounted, h } from "vue";
+import { toast } from "vue-sonner";
+import { Icon } from "@iconify/vue";
 
 useSeoMetaTags({
-  title: 'Register',
-})
+  title: "Register",
+});
 
-const route = inject('route')
+const route = inject("route");
+const page = usePage();
+
+// Get pre-qualification data from props
+const preQualificationData = page.props.preQualificationData || {};
+
 const form = useForm({
-  name: '',
-  email: '',
-  password: '',
-  password_confirmation: '',
+  name:
+    preQualificationData.first_name && preQualificationData.last_name
+      ? `${preQualificationData.first_name} ${preQualificationData.last_name}`
+      : "",
+  email: preQualificationData.email || "",
+  password: "",
+  password_confirmation: "",
   terms: false,
-})
+});
 
 function submit() {
-  form.post(route('register'), {
-    onFinish: () => form.reset('password', 'password_confirmation'),
-  })
+  form.post(route("register"), {
+    onFinish: () => form.reset("password", "password_confirmation"),
+  });
 }
+
+onMounted(() => {
+  // Check if there's a success message from pre-qualification
+  if (page.props.flashSuccessMessage) {
+    toast.success(page.props.flashSuccessMessage, {
+      duration: 6000,
+      icon: h(Icon, { icon: "lucide:check-circle", class: "h-5 w-5" }),
+    });
+  }
+});
 </script>
 
 <template>
   <div class="flex min-h-screen flex-col items-center justify-center">
+    <Sonner position="top-center" />
+
     <Card class="mx-auto max-w-lg">
       <CardHeader>
         <CardTitle class="flex justify-center">
@@ -41,6 +69,18 @@ function submit() {
         <CardDescription class="text-center text-2xl">
           Create your account
         </CardDescription>
+        <div
+          v-if="$page.props.preQualificationData"
+          class="mt-2 rounded-md bg-primary-50 p-3 text-sm text-primary-700 border border-primary-200"
+        >
+          <div class="flex items-center gap-2">
+            <Icon icon="lucide:info" class="h-5 w-5" />
+            <span
+              >You're eligible for the scholarship! Complete your registration
+              to continue.</span
+            >
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent>
@@ -48,20 +88,36 @@ function submit() {
           <div class="grid gap-4">
             <div class="grid gap-2">
               <Label for="name">Name</Label>
-              <Input id="name" v-model="form.name" type="text" required autofocus autocomplete="name" />
+              <Input
+                id="name"
+                v-model="form.name"
+                type="text"
+                required
+                autofocus
+                autocomplete="name"
+              />
               <InputError :message="form.errors.name" />
             </div>
 
             <div class="grid gap-2">
               <Label for="email">Email</Label>
-              <Input id="email" v-model="form.email" type="email" required autocomplete="username" />
+              <Input
+                id="email"
+                v-model="form.email"
+                type="email"
+                required
+                autocomplete="username"
+              />
               <InputError :message="form.errors.email" />
             </div>
 
             <div class="grid gap-2">
               <Label for="password">Password</Label>
               <Input
-                id="password" v-model="form.password" type="password" required
+                id="password"
+                v-model="form.password"
+                type="password"
+                required
                 autocomplete="new-password"
               />
               <InputError :message="form.errors.password" />
@@ -70,20 +126,41 @@ function submit() {
             <div class="grid gap-2">
               <Label for="password_confirmation">Confirm Password</Label>
               <Input
-                id="password_confirmation" v-model="form.password_confirmation" type="password"
-                required autocomplete="new-password"
+                id="password_confirmation"
+                v-model="form.password_confirmation"
+                type="password"
+                required
+                autocomplete="new-password"
               />
               <InputError :message="form.errors.password_confirmation" />
             </div>
 
             <div v-if="$page.props.jetstream.hasTermsAndPrivacyPolicyFeature">
               <div class="flex items-center space-x-2">
-                <Checkbox id="terms" v-model:checked="form.terms" name="terms" required />
-                <label for="terms" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <Checkbox
+                  id="terms"
+                  v-model:checked="form.terms"
+                  name="terms"
+                  required
+                />
+                <label
+                  for="terms"
+                  class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
                   I agree to the
-                  <a target="_blank" :href="route('terms.show')" class="rounded-md text-sm underline">Terms of Service</a>
+                  <a
+                    target="_blank"
+                    :href="route('terms.show')"
+                    class="rounded-md text-sm underline"
+                    >Terms of Service</a
+                  >
                   and
-                  <a target="_blank" :href="route('policy.show')" class="rounded-md text-sm underline">Privacy Policy</a>
+                  <a
+                    target="_blank"
+                    :href="route('policy.show')"
+                    class="rounded-md text-sm underline"
+                    >Privacy Policy</a
+                  >
                 </label>
               </div>
               <InputError :message="form.errors.terms" />
@@ -94,7 +171,10 @@ function submit() {
                 Already registered?
               </Link>
 
-              <Button :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
+              <Button
+                :class="{ 'opacity-25': form.processing }"
+                :disabled="form.processing"
+              >
                 Register
               </Button>
             </div>

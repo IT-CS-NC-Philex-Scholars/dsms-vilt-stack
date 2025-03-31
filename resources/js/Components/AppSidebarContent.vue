@@ -8,12 +8,16 @@ import {
   SidebarMenuItem,
 } from "@/Components/shadcn/ui/sidebar";
 import { Icon } from "@iconify/vue";
+
 import { Link, usePage } from "@inertiajs/vue3"; // Import usePage
+
 import { useColorMode } from "@vueuse/core";
 import { computed, inject } from "vue";
 
 const route = inject("route");
+
 const page = usePage(); // Get page instance
+
 const mode = useColorMode({
   attribute: "class",
   modes: { light: "", dark: "dark" },
@@ -22,7 +26,9 @@ const mode = useColorMode({
 // Scholar-Centric Navigation Configuration
 const navigationConfig = computed(() => [
   {
-    label: "Navigation", // Main navigation group
+
+    label: "Platform",
+
     items: [
       {
         name: "Dashboard",
@@ -70,9 +76,18 @@ const navigationConfig = computed(() => [
         icon: "lucide:settings",
         route: "profile.show", // Existing Jetstream/Breeze profile route
       },
+
     ],
   },
+  // {
+  //   label: 'API',
+  //   items: [
+  //     // { name: 'API Tokens', icon: 'lucide:key', route: 'api-tokens.index' },
+  //     // { name: 'API Documentation', icon: 'lucide:book-heart', route: 'scribe', external: true },
+  //   ],
+  // },
   {
+
     label: "Support", // Support and Help group
     class: "mt-auto pt-4 border-t border-border", // Push to bottom with separator
     items: [
@@ -88,11 +103,14 @@ const navigationConfig = computed(() => [
         icon: "lucide:life-buoy",
         href: "#", // Replace with your support link/mailto
         // href: "mailto:support@yourapp.com",
+
         external: true,
       },
     ],
   },
+
 ]);
+
 
 const isDarkMode = computed(() => mode.value === "dark");
 
@@ -101,6 +119,7 @@ function renderLink(item) {
   if (item.external) {
     return {
       is: "a",
+
       href: item.href, // Directly use href for external
       target: "_blank",
       rel: "noopener noreferrer", // Added for security
@@ -111,11 +130,13 @@ function renderLink(item) {
     return {
       is: Link,
       href: route(item.route),
+
     };
   }
   // Fallback if route doesn't exist (useful during development)
   console.warn(`Route [${item.route}] does not exist.`);
   return {
+
     is: "span", // Render as a non-clickable span or div
     class: "cursor-not-allowed opacity-50",
   };
@@ -127,6 +148,7 @@ function shouldDisplay(item) {
     return item.condition();
   }
   return true; // Display by default
+
 }
 </script>
 
@@ -134,13 +156,16 @@ function shouldDisplay(item) {
   <SidebarContent>
     <SidebarGroup
       v-for="(group, index) in navigationConfig"
+
       :key="group.label || `group-${index}`"
+
       :class="group.class"
     >
       <SidebarGroupLabel v-if="group.label">
         {{ group.label }}
       </SidebarGroupLabel>
       <SidebarMenu>
+
         <!-- Iterate over items within the group -->
         <template v-for="item in group.items" :key="item.name">
           <SidebarMenuItem
@@ -187,6 +212,7 @@ function shouldDisplay(item) {
               class="h-4 w-4"
             />
             <span>{{ isDarkMode ? "Dark" : "Light" }} Mode</span>
+
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

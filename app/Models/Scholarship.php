@@ -12,10 +12,10 @@ class Scholarship extends Model
 {
     use HasFactory, SoftDeletes;
 
+
         protected $fillable = [
             'name',
             'description',
-            'amount',
             'requirements',
             'application_deadline',
             'status'
@@ -28,7 +28,14 @@ class Scholarship extends Model
 
         public function scholars()
         {
-            return $this->belongsToMany(Scholar::class, 'requirements');
+            return $this->belongsToMany(Scholar::class, 'scholar_scholarship')
+                ->withPivot('status', 'start_date', 'end_date', 'remarks')
+                ->withTimestamps();
+        }
+
+        public function requirements()
+        {
+            return $this->hasMany(Requirement::class);
         }
 
         public function requirements()

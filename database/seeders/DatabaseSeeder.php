@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+
+use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB; // Import DB facade
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+
 
 final class DatabaseSeeder extends Seeder
 {
@@ -14,6 +18,7 @@ final class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
         DB::transaction(function () { // Use transaction for atomicity
             $this->call([
                 // Core Setup First
@@ -32,5 +37,6 @@ final class DatabaseSeeder extends Seeder
         });
 
         $this->command->info('Database seeding completed successfully!');
+
     }
 }

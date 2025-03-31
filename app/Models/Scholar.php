@@ -11,6 +11,7 @@ class Scholar extends Model
     use HasFactory, SoftDeletes;
 
         protected $fillable = [
+            'user_id',
             'first_name',
             'middle_name',
             'last_name',
@@ -41,6 +42,12 @@ class Scholar extends Model
             'additional_details' => 'json'
         ];
 
+
+        public function user()
+        {
+            return $this->belongsTo(User::class, 'user_id', 'id');
+        }
+
         public function school()
         {
             return $this->belongsTo(School::class, 'school_id', 'id');
@@ -53,11 +60,25 @@ class Scholar extends Model
 
         public function scholarships()
         {
-            return $this->belongsToMany(Scholarship::class, 'requirements');
+            return $this->belongsToMany(Scholarship::class, 'scholar_scholarship')
+                        ->withPivot('status', 'start_date', 'end_date', 'remarks')
+                        ->withTimestamps();
         }
 
         public function getFullNameAttribute()
         {
             return $this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name;
+        }
+
+        public function getCompletedRequirementsAttribute()
+        {
+            return $this->requirements()->whereHas('scholarships', function ($query){
+                    $query->where('status', 'active');
+            })
+            ->where('status', 'approved')->count();
+        }
+        public function getTotalRequirementsAttribute()
+        {
+            return $this->requirements()->count();
         }
 }

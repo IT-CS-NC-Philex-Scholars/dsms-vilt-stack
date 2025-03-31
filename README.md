@@ -14,13 +14,16 @@
 
 **Transforming scholarship management for the Philex Mines community with a seamless, modern digital experience.**
 
+
 </div>
 
 ---
 
 ## 🌟 Overview
 
+
 PhilexScholar addresses the challenges of traditional scholarship management by providing a centralized, efficient, and user-friendly platform. Built on the robust **VILT stack (Vue.js, Inertia.js, Laravel, TailwindCSS)**, it streamlines the entire scholarship lifecycle – from application discovery and submission to administrative review, disbursement tracking, and reporting – for both students and administrators within the Philex Mines community.
+
 
 ## 🎯 Project Goal
 

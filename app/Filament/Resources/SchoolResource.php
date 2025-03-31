@@ -19,6 +19,7 @@ class SchoolResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
+
     public static function form(Form $form): Form
     {
         return $form

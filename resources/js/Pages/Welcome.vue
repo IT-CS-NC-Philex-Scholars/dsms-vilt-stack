@@ -1,18 +1,22 @@
 <script setup>
-// Keep necessary Shadcn UI components
+
+
 import Accordion from "@/Components/shadcn/ui/accordion/Accordion.vue";
 import AccordionContent from "@/Components/shadcn/ui/accordion/AccordionContent.vue";
 import AccordionItem from "@/Components/shadcn/ui/accordion/AccordionItem.vue";
 import AccordionTrigger from "@/Components/shadcn/ui/accordion/AccordionTrigger.vue";
 import Badge from "@/Components/shadcn/ui/badge/Badge.vue";
 import Button from "@/Components/shadcn/ui/button/Button.vue";
+
 import { ChevronDown } from "lucide-vue-next";
+
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+
 } from "@/Components/shadcn/ui/card"; // Import Card components
 import {
   Tabs,
@@ -25,6 +29,7 @@ import { useSeoMetaTags } from "@/Composables/useSeoMetaTags.js";
 import WebLayout from "@/Layouts/WebLayout.vue";
 import { Icon } from "@iconify/vue";
 import { Link } from "@inertiajs/vue3";
+
 
 const props = defineProps({
   canLogin: {
@@ -51,13 +56,15 @@ const props = defineProps({
   },
 });
 
+
 useSeoMetaTags(props.seo);
 
-// --- Define PhilexScholar Content ---
+
 
 // Features based on README
 const studentFeatures = [
   {
+
     icon: "lucide:edit",
     title: "Smart Application Portal",
     description:
@@ -198,6 +205,7 @@ const techStack = [
   { icon: "logos:tailwindcss-icon", name: "Tailwind CSS" },
   { icon: "logos:sqlite", name: "SQLite" },
 ];
+
 </script>
 
 <template>
@@ -207,6 +215,7 @@ const techStack = [
     :app-name="appName"
   >
     <!-- Hero Section -->
+
     <section class="relative border-b bg-background overflow-hidden">
       <!-- Enhanced Background -->
       <div
@@ -227,6 +236,7 @@ const techStack = [
         />
       </div>
 
+
       <div
         class="container relative mx-auto px-4 py-32 sm:py-40 lg:py-48 text-center"
       >
@@ -236,6 +246,7 @@ const techStack = [
             variant="outline"
             class="rounded-full border bg-primary/10 px-4 py-1.5 text-sm font-medium"
           >
+
             <Icon icon="lucide:sparkles" class="mr-1.5 h-4 w-4 text-primary" />
             Now Accepting Applications!
           </Badge>
@@ -256,14 +267,17 @@ const techStack = [
         </p>
 
         <!-- Subtitle - Clear but secondary -->
+
         <p
           class="mx-auto mt-8 max-w-3xl text-lg text-muted-foreground/80"
           :style="{ textWrap: 'pretty' }"
           fetchpriority="high"
         >
+
           Streamlining the entire scholarship process – from application and
           document submission to tracking and disbursement – all in one secure,
           modern platform.
+
         </p>
 
         <!-- CTA Buttons - Clear Action -->
@@ -271,6 +285,7 @@ const techStack = [
           class="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           <Button
+
             v-if="canRegister"
             :as="Link"
             href="/register"
@@ -292,8 +307,10 @@ const techStack = [
             Login to Dashboard
           </Button>
         </div>
+
       </div>
     </section>
+
 
     <!-- Features Section -->
     <section id="features" class="container mx-auto px-4 py-24 sm:py-32">
@@ -307,6 +324,7 @@ const techStack = [
           PhilexScholar offers dedicated features tailored for both students and
           administrators.
         </p>
+
       </div>
 
       <Tabs default-value="students" class="w-full max-w-5xl mx-auto">
@@ -381,6 +399,7 @@ const techStack = [
         </TabsContent>
       </Tabs>
     </section>
+
 
     <!-- How it Works Section -->
     <section
@@ -531,6 +550,7 @@ const techStack = [
               </AccordionContent>
             </AccordionItem>
           </Accordion>
+
         </div>
         <div class="mt-12 text-center">
           <p class="text-muted-foreground">
@@ -559,6 +579,7 @@ const techStack = [
           class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 h-[600px] w-[120%] rounded-full bg-gradient-radial from-primary/10 via-primary/5 to-transparent blur-[80px]"
         />
       </div>
+
 
       <div class="container relative mx-auto px-4 z-10">
         <div class="mx-auto max-w-3xl text-center">
@@ -599,6 +620,7 @@ const techStack = [
               <Icon icon="lucide:log-in" class="mr-2 h-5 w-5" />
               Login to Dashboard
             </Button>
+
           </div>
         </div>
       </div>

@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-namespace Database\Seeders;
-
 use App\Models\Requirement;
 use App\Models\Scholar;
 use App\Models\Scholarship;
 use Illuminate\Database\Seeder;
+
 use Illuminate\Support\Facades\DB;
 
 class RequirementSeeder extends Seeder
@@ -66,5 +65,6 @@ class RequirementSeeder extends Seeder
 
 
         $this->command->info('Created requirement links between scholars and scholarships.');
+
     }
 }

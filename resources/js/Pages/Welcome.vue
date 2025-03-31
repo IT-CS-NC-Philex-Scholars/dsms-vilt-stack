@@ -1,17 +1,30 @@
 <script setup>
-import FeaturesCard from '@/Components/FeaturesCard.vue'
-import PricingCard from '@/Components/PricingCard.vue'
-import Accordion from '@/Components/shadcn/ui/accordion/Accordion.vue'
-import AccordionContent from '@/Components/shadcn/ui/accordion/AccordionContent.vue'
-import AccordionItem from '@/Components/shadcn/ui/accordion/AccordionItem.vue'
-import AccordionTrigger from '@/Components/shadcn/ui/accordion/AccordionTrigger.vue'
-import Badge from '@/Components/shadcn/ui/badge/Badge.vue'
-import Button from '@/Components/shadcn/ui/button/Button.vue'
-import Terminal from '@/Components/Terminal.vue'
-import { useSeoMetaTags } from '@/Composables/useSeoMetaTags.js'
-import WebLayout from '@/Layouts/WebLayout.vue'
-import { Icon } from '@iconify/vue'
-import { Link } from '@inertiajs/vue3'
+// Keep necessary Shadcn UI components
+import Accordion from "@/Components/shadcn/ui/accordion/Accordion.vue";
+import AccordionContent from "@/Components/shadcn/ui/accordion/AccordionContent.vue";
+import AccordionItem from "@/Components/shadcn/ui/accordion/AccordionItem.vue";
+import AccordionTrigger from "@/Components/shadcn/ui/accordion/AccordionTrigger.vue";
+import Badge from "@/Components/shadcn/ui/badge/Badge.vue";
+import Button from "@/Components/shadcn/ui/button/Button.vue";
+import { ChevronDown } from "lucide-vue-next";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/Components/shadcn/ui/card"; // Import Card components
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/Components/shadcn/ui/tabs";
+// Keep utilities
+import { useSeoMetaTags } from "@/Composables/useSeoMetaTags.js";
+import WebLayout from "@/Layouts/WebLayout.vue";
+import { Icon } from "@iconify/vue";
+import { Link } from "@inertiajs/vue3";
 
 const props = defineProps({
   canLogin: {
@@ -20,294 +33,573 @@ const props = defineProps({
   canRegister: {
     type: Boolean,
   },
+  appName: {
+    type: String,
+    required: true,
+  },
+  phpVersion: {
+    type: String,
+    required: true,
+  },
+  laravelVersion: {
+    type: String,
+    required: true,
+  },
   seo: {
     type: Object,
     default: () => null,
   },
-})
+});
 
-useSeoMetaTags(props.seo)
+useSeoMetaTags(props.seo);
 
-const features = [
-  {
-    icon: '🚀',
-    title: '10x Dev Experience',
-    description: 'Ship faster with opinionated Laravel Pint, maximum PHPStan level, and Rector for enhanced code quality and developer productivity.',
-  },
-  {
-    icon: '🐳',
-    title: 'Production Docker Ready',
-    description: 'Optimized Docker images with Laravel Octane and Sail for lightning-fast development and deployment.',
-  },
-  {
-    icon: '🔑',
-    title: 'Advanced Authentication',
-    description: 'Complete authentication system with social login, and role-based access control.',
-  },
-  {
-    icon: '💳',
-    title: 'Payment Ready',
-    description: 'Integrated Laravel Cashier for subscription billing and payment processing so you can focus on building your product.',
-  },
-  {
-    icon: '🌐',
-    title: 'API Ready',
-    description: 'RESTful API endpoints with Laravel Sanctum authentication and comprehensive documentation.',
-  },
-  {
-    icon: '🎨',
-    title: 'Customizable UI',
-    description: 'Built with shadcn/ui components, making UI customization a breeze. Easily modify themes, styles, and components to match your brand.',
-  },
-  {
-    icon: '🧠',
-    title: 'AI Integration Ready',
-    description: 'Pre-configured LLM integrations for OpenAI, Anthropic, and more. Build AI-powered features into your app with minimal setup.',
-  },
-  {
-    icon: '📊',
-    title: 'FilamentPHP Admin',
-    description: 'Beautiful admin panel powered by FilamentPHP with CRUD operations, charts, and detailed analytics.',
-  },
-  {
-    icon: '✨',
-    title: 'Evolving Features',
-    description: 'This is just the beginning. Regular updates bring new features, integrations, and improvements to supercharge your development.',
-  },
-]
+// --- Define PhilexScholar Content ---
 
-const pricingFeatures = [
-  'Production-ready Docker setup',
-  'Advanced authentication system',
-  'AI Integrations',
-  'Payment integration ready',
-  'API endpoints with Sanctum',
-  'Comprehensive documentation',
-]
-const sponsorLinks = {
-  github: 'https://github.com/sponsors/pushpak1300',
-  x: 'https://x.com/pushpak1300',
-}
+// Features based on README
+const studentFeatures = [
+  {
+    icon: "lucide:edit",
+    title: "Smart Application Portal",
+    description:
+      "Intuitive step-by-step forms guide you through the application process.",
+  },
+  {
+    icon: "lucide:file-up",
+    title: "Easy Document Upload",
+    description:
+      "Securely upload and manage all required scholarship documents online.",
+  },
+  {
+    icon: "lucide:eye",
+    title: "Real-Time Status Tracking",
+    description:
+      "Monitor your application progress and receive timely updates.",
+  },
+  {
+    icon: "lucide:bell",
+    title: "Automated Notifications",
+    description:
+      "Stay informed about deadlines, status changes, and requirements.",
+  },
+  {
+    icon: "lucide:layout-dashboard",
+    title: "Personalized Dashboard",
+    description: "Manage your profile, track payments, and communicate easily.",
+  },
+];
 
+const adminFeatures = [
+  {
+    icon: "lucide:users",
+    title: "Efficient Application Review",
+    description:
+      "Process applications in bulk with streamlined verification tools.",
+  },
+  {
+    icon: "lucide:file-check-2",
+    title: "Automated Eligibility Checks",
+    description:
+      "Quickly identify qualified candidates based on defined criteria.",
+  },
+  {
+    icon: "lucide:dollar-sign",
+    title: "Streamlined Financials",
+    description:
+      "Manage disbursements, track payment schedules, and generate reports.",
+  },
+  {
+    icon: "lucide:sliders-horizontal",
+    title: "Flexible Program Admin",
+    description:
+      "Configure eligibility rules, workflows, and program settings.",
+  },
+  {
+    icon: "lucide:bar-chart-3",
+    title: "Insightful Analytics",
+    description:
+      "Gain valuable insights into application trends and program performance.",
+  },
+];
+
+// How it Works Steps
+const processSteps = [
+  {
+    id: 1,
+    title: "Register & Apply",
+    description:
+      "Students create an account and submit their application through the portal.",
+    icon: "lucide:user-plus",
+  },
+  {
+    id: 2,
+    title: "Document Submission",
+    description: "Upload required documents securely for verification.",
+    icon: "lucide:file-up",
+  },
+  {
+    id: 3,
+    title: "Admin Review",
+    description: "Administrators review applications and verify eligibility.",
+    icon: "lucide:search-check",
+  },
+  {
+    id: 4,
+    title: "Award & Notification",
+    description:
+      "Successful applicants are notified and awarded the scholarship.",
+    icon: "lucide:award",
+  },
+  {
+    id: 5,
+    title: "Track & Manage",
+    description:
+      "Students and admins track progress and manage scholarship details online.",
+    icon: "lucide:list-checks",
+  },
+];
+
+// FAQ Items based on README context
 const faqItems = [
   {
-    value: 'item-1',
-    title: 'Is Larasonic really free?',
-    content: 'Yes! Larasonic is completely free and open source under the MIT license. You can use it for personal or commercial projects without any restrictions. Feel free to star the repo for showing your intrest.',
+    value: "item-1",
+    title: "Who is PhilexScholar for?",
+    content:
+      "PhilexScholar is designed for students applying for scholarships offered by Philex Mines and the administrators managing these programs.",
   },
   {
-    value: 'item-2',
-    title: 'How can I contribute?',
-    content: 'You can contribute by submitting pull requests, reporting bugs, suggesting features, or helping with documentation. Every contribution is valuable!',
+    value: "item-2",
+    title: "How do I apply for a scholarship?",
+    content:
+      "If you are eligible, you can register for an account and follow the step-by-step application process within the portal. Ensure you have all required documents ready for upload.",
   },
   {
-    value: 'item-3',
-    title: 'Why should I sponsor?',
-    content: 'Sponsoring helps ensure the project\'s long-term sustainability. Your support enables continued maintenance, new features, and improvements that benefit the entire community.',
+    value: "item-3",
+    title: "How can I track my application status?",
+    content:
+      "Once you submit your application, you can log in to your student dashboard to see the real-time status and receive notifications about any updates.",
   },
-]
+  {
+    value: "item-4",
+    title: "Is my data secure?",
+    content:
+      "Yes, we prioritize data security. PhilexScholar uses modern security practices and technologies like Laravel Sanctum to protect your personal information and documents.",
+  },
+];
 
-const githubUrl = 'https://github.com/pushpak1300/larasonic'
+// Tech Stack Logos (adjust as needed)
+const techStack = [
+  { icon: "logos:laravel", name: "Laravel" },
+  { icon: "logos:vue", name: "Vue.js" },
+  {
+    icon: "simple-icons:inertia",
+    name: "Inertia.js",
+    color: "text-purple-500",
+  },
+  { icon: "logos:tailwindcss-icon", name: "Tailwind CSS" },
+  { icon: "logos:sqlite", name: "SQLite" },
+];
 </script>
 
 <template>
-  <WebLayout :can-login="canLogin" :can-register="canRegister">
+  <WebLayout
+    :can-login="canLogin"
+    :can-register="canRegister"
+    :app-name="appName"
+  >
     <!-- Hero Section -->
-    <section class="relative overflow-hidden border-b bg-background py-20 sm:py-32">
-      <div class="container mx-auto px-4 text-center">
-        <!-- Badge -->
-        <div class="mb-8 inline-flex justify-center">
-          <Badge variant="outline" class="rounded-full border bg-primary/10 px-4 py-1 text-xs sm:text-sm">
-            ✨ Using PHP 8.3+, Laravel 11, Inertia 2.0 and Tailwind CSS 4+
+    <section class="relative border-b bg-background overflow-hidden">
+      <!-- Enhanced Background -->
+      <div
+        aria-hidden="true"
+        class="absolute inset-0 -z-10 opacity-50 dark:opacity-60"
+      >
+        <!-- Grid -->
+        <div
+          class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:36px_36px]"
+        />
+        <!-- Radial Gradient Mask -->
+        <div
+          class="absolute inset-0 bg-background [mask-image:radial-gradient(ellipse_50%_60%_at_50%_0%,#000_70%,transparent_110%)]"
+        />
+        <!-- Subtle Glow -->
+        <div
+          class="absolute left-1/2 top-0 -z-20 -translate-x-1/2 h-[450px] w-[700px] rounded-full bg-primary/10 blur-[120px]"
+        />
+      </div>
+
+      <div
+        class="container relative mx-auto px-4 py-32 sm:py-40 lg:py-48 text-center"
+      >
+        <!-- Optional Badge -->
+        <div class="mb-6 inline-flex justify-center">
+          <Badge
+            variant="outline"
+            class="rounded-full border bg-primary/10 px-4 py-1.5 text-sm font-medium"
+          >
+            <Icon icon="lucide:sparkles" class="mr-1.5 h-4 w-4 text-primary" />
+            Now Accepting Applications!
           </Badge>
         </div>
 
-        <!-- Main Heading -->
-        <div class="mx-auto max-w-4xl">
-          <h1
-            class="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
-            :style="{ contain: 'layout paint' }"
-          >
-            <span class="block text-foreground">Modern Laravel</span>
-            <span
-              class="mt-2 block bg-linear-to-r from-red-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent"
-            >
-              SaaS Starter Kit
-            </span>
-          </h1>
-        </div>
-
-        <!-- Subtitle - Add priority hint -->
-        <p
-          class="mx-auto mt-6 max-w-2xl text-center text-base text-muted-foreground sm:text-lg md:text-xl"
-          :style="{ contain: 'layout paint' }"
-          fetchpriority="high"
+        <!-- Main Heading - Emphasis on Typography -->
+        <h1
+          class="text-5xl font-extrabold tracking-tighter text-foreground sm:text-6xl md:text-7xl lg:text-8xl"
+          :style="{ textWrap: 'balance' }"
         >
-          Ship faster production-ready applications 10x faster with starter kit powered
-          by Laravel Jetstream, Inertia V2, and Shadcn/ui.
+          Welcome to <span class="text-primary">PhilexScholar</span>
+        </h1>
+        <p
+          class="mt-6 text-xl font-normal text-muted-foreground sm:text-2xl md:text-3xl"
+          :style="{ textWrap: 'balance' }"
+        >
+          Your Digital Hub for Philex Mines Scholarships.
         </p>
 
-        <!-- CTA Buttons -->
-        <div class="mt-10 flex items-center justify-center gap-4 flex-row">
+        <!-- Subtitle - Clear but secondary -->
+        <p
+          class="mx-auto mt-8 max-w-3xl text-lg text-muted-foreground/80"
+          :style="{ textWrap: 'pretty' }"
+          fetchpriority="high"
+        >
+          Streamlining the entire scholarship process – from application and
+          document submission to tracking and disbursement – all in one secure,
+          modern platform.
+        </p>
+
+        <!-- CTA Buttons - Clear Action -->
+        <div
+          class="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
+        >
           <Button
-            as="a" href="https://larasonic.com/dashboard" target="_blank" size="lg"
-            class="w-full sm:w-auto"
+            v-if="canRegister"
+            :as="Link"
+            href="/register"
+            size="xl"
+            class="w-full sm:w-auto px-8 py-3"
           >
-            View Demo
+            <Icon icon="lucide:user-plus" class="mr-2 h-5 w-5" />
+            Register to Apply
           </Button>
           <Button
-            as="a" :href="githubUrl" target="_blank" size="lg" variant="outline"
-            class="w-full sm:w-auto"
+            v-if="canLogin"
+            :as="Link"
+            href="/login"
+            size="xl"
+            variant="outline"
+            class="w-full sm:w-auto px-8 py-3"
           >
-            <Icon icon="lucide:github" class="size-4" aria-hidden="true" />
-            Github
+            <Icon icon="lucide:log-in" class="mr-2 h-5 w-5" />
+            Login to Dashboard
           </Button>
         </div>
+      </div>
+    </section>
 
-        <!-- Trust Badges -->
-        <div class="mt-16 sm:mt-24">
-          <p class="text-sm text-muted-foreground">
-            Trusted by developers worldwide
+    <!-- Features Section -->
+    <section id="features" class="container mx-auto px-4 py-24 sm:py-32">
+      <div class="mx-auto max-w-3xl text-center mb-16">
+        <h2
+          class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+        >
+          Empowering Futures, Simplified.
+        </h2>
+        <p class="mt-4 text-lg text-muted-foreground sm:text-xl">
+          PhilexScholar offers dedicated features tailored for both students and
+          administrators.
+        </p>
+      </div>
+
+      <Tabs default-value="students" class="w-full max-w-5xl mx-auto">
+        <TabsList class="grid w-full grid-cols-2 h-12">
+          <TabsTrigger value="students" class="text-base h-full">
+            <Icon icon="lucide:graduation-cap" class="mr-2 h-5 w-5" />
+            For Students
+          </TabsTrigger>
+          <TabsTrigger value="administrators" class="text-base h-full">
+            <Icon icon="lucide:user-cog" class="mr-2 h-5 w-5" />
+            For Administrators
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="students" class="mt-10">
+          <div
+            class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8"
+          >
+            <Card
+              v-for="feature in studentFeatures"
+              :key="feature.title"
+              class="group relative overflow-hidden border-border/50 hover:border-primary/50 transition-colors duration-300 bg-card"
+            >
+              <!-- Optional subtle gradient border effect on hover -->
+              <!-- <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary/10 via-transparent to-transparent"></div> -->
+
+              <CardHeader class="relative z-10 pb-4">
+                <div
+                  class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary"
+                >
+                  <Icon :icon="feature.icon" class="h-6 w-6" />
+                </div>
+                <CardTitle class="text-lg font-semibold tracking-tight">
+                  {{ feature.title }}
+                </CardTitle>
+              </CardHeader>
+              <CardContent class="relative z-10">
+                <p class="text-sm text-muted-foreground">
+                  {{ feature.description }}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="administrators" class="mt-10">
+          <div
+            class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8"
+          >
+            <Card
+              v-for="feature in adminFeatures"
+              :key="feature.title"
+              class="group relative overflow-hidden border-border/50 hover:border-primary/50 transition-colors duration-300 bg-card"
+            >
+              <CardHeader class="relative z-10 pb-4">
+                <div
+                  class="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary"
+                >
+                  <Icon :icon="feature.icon" class="h-6 w-6" />
+                </div>
+                <CardTitle class="text-lg font-semibold tracking-tight">
+                  {{ feature.title }}
+                </CardTitle>
+              </CardHeader>
+              <CardContent class="relative z-10">
+                <p class="text-sm text-muted-foreground">
+                  {{ feature.description }}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </section>
+
+    <!-- How it Works Section -->
+    <section
+      id="how-it-works"
+      class="border-t bg-gradient-to-b from-background to-muted/30 py-24 sm:py-32"
+    >
+      <div class="container mx-auto px-4">
+        <div class="mx-auto max-w-3xl text-center mb-16">
+          <h2
+            class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+          >
+            Simple Steps to Success
+          </h2>
+          <p class="mt-4 text-lg text-muted-foreground sm:text-xl">
+            Follow our straightforward process for scholarship application and
+            management.
           </p>
-          <div class="mt-4 flex flex-wrap items-center justify-center gap-6 sm:gap-8">
-            <Icon
-              icon="logos:laravel"
-              class="size-8 opacity-75 grayscale transition-all hover:opacity-100 hover:grayscale-0"
-            />
-            <Icon
-              icon="logos:vue"
-              class="size-8 opacity-75 grayscale transition-all hover:opacity-100 hover:grayscale-0"
-            />
-            <Icon
-              icon="simple-icons:inertia"
-              class="size-8 opacity-75 grayscale transition-all hover:opacity-100 hover:grayscale-0 text-purple-500"
-            />
-            <Icon
-              icon="logos:tailwindcss-icon"
-              class="size-8 opacity-75 grayscale transition-all hover:opacity-100 hover:grayscale-0"
-            />
+        </div>
+
+        <div class="relative max-w-5xl mx-auto">
+          <!-- Connecting Line -->
+          <div
+            aria-hidden="true"
+            class="absolute left-0 right-0 top-6 h-1 bg-border rounded-full md:left-6 md:right-6"
+          ></div>
+
+          <!-- Steps Grid -->
+          <div class="relative grid grid-cols-1 gap-12 md:grid-cols-5 md:gap-8">
+            <div
+              v-for="(step, index) in processSteps"
+              :key="step.id"
+              class="flex flex-col items-center text-center md:items-start md:text-left"
+            >
+              <!-- Step Node (Circle + Icon) -->
+              <div
+                class="relative z-10 flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary bg-background text-primary mb-4 ring-4 ring-background"
+              >
+                <!-- <span class="font-bold text-lg">{{ index + 1 }}</span> -->
+                <Icon :icon="step.icon" class="h-6 w-6" />
+              </div>
+
+              <!-- Step Content -->
+              <div class="mt-2">
+                <h3 class="text-lg font-semibold text-foreground">
+                  {{ step.title }}
+                </h3>
+                <p class="mt-1 text-sm text-muted-foreground">
+                  {{ step.description }}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Background Effects -->
-      <div
-        class="absolute inset-0 -z-10 h-full w-full bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]"
-      />
-      <div
-        class="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]"
-      />
-    </section>
-    <!-- Features Grid -->
-    <section id="features" class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-      <h2 class="text-center text-2xl font-bold tracking-tight sm:text-4xl">
-        Features ✨
-      </h2>
-      <p class="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-        Everything you need to ship faste to production without any hassle.
-      </p>
-
-      <div class="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-        <FeaturesCard
-          v-for="feature in features" :key="feature.title" :icon="feature.icon"
-          :title="feature.title" :description="feature.description"
-        />
-      </div>
-      <div class="mt-6 flex justify-center gap-2">
-        <Button as="a" href="https://docs.larasonic.com" target="_blank" rel="noopener noreferrer">
-          <Icon icon="lucide:book-open" class="size-4" aria-hidden="true" />
-          Documentation
-        </Button>
-        <Button
-          variant="secondary" as="a" :href="`${githubUrl}/discussions/categories/roadmap`" target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Icon icon="lucide:construction" class="size-4" aria-hidden="true" />
-          Roadmap
-        </Button>
-      </div>
     </section>
 
-    <section id="pricing" class="border-t">
-      <div class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mx-auto max-w-3xl text-center">
-          <h2 class="text-center text-2xl font-bold tracking-tight sm:text-4xl">
-            Proudly Open Source 🤑
+    <!-- Technology Section -->
+    <section id="tech-stack" class="border-t py-16 sm:py-24">
+      <div class="container mx-auto px-4">
+        <div class="text-center">
+          <h2
+            class="text-base font-semibold uppercase tracking-wider text-primary"
+          >
+            Built with Reliable Technology
           </h2>
-          <p class="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-            Larasonic is and will always be open source. No hidden fees, no premium features.
+          <p
+            class="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl"
+          >
+            Powered by the VILT Stack
+          </p>
+          <p class="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            Leveraging modern tools for a robust, secure, and user-friendly
+            experience.
           </p>
         </div>
-
-        <!-- Pricing Card -->
-        <PricingCard
-          class="mx-auto mt-16" :features="pricingFeatures" :price="0" plan="What's included ?"
-          billing-period="Free Forever"
-        >
-          <template #action>
-            <Button :as="Link" :href="route('dashboard')">
-              Get Started
-            </Button>
-          </template>
-          <template #footer>
-            <div class="flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <p class="text-sm">
-                Want to support the development?
-              </p>
-              <div class="flex gap-4">
-                <Button variant="outline" as="a" :href="sponsorLinks.github" target="_blank">
-                  <Icon icon="mdi:github" class="mr-2 size-4" aria-hidden="true" />
-                  Sponsor
-                </Button>
-                <Button variant="outline" as="a" :href="sponsorLinks.x" target="_blank">
-                  <Icon icon="ri:twitter-x-line" class="mr-2 size-4" aria-hidden="true" />
-                  Follow Me
-                </Button>
-              </div>
+        <div class="mt-12">
+          <div
+            class="flex flex-wrap items-center justify-center gap-8 sm:gap-10 md:gap-14"
+          >
+            <div
+              v-for="tech in techStack"
+              :key="tech.name"
+              class="flex flex-col items-center gap-2 text-center"
+            >
+              <Icon
+                :icon="tech.icon"
+                class="h-10 w-10 opacity-75 transition-opacity hover:opacity-100"
+                :class="tech.color || 'text-muted-foreground'"
+              />
+              <span class="text-xs font-medium text-muted-foreground">{{
+                tech.name
+              }}</span>
             </div>
-          </template>
-        </PricingCard>
-        <!-- FAQ Section -->
-        <div class="mx-auto mt-16 text-center">
-          <h2 class="text-2xl font-bold">
-            Frequently Asked Questions
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="border-t bg-muted/40 py-24 sm:py-32">
+      <div class="container mx-auto px-4">
+        <div class="mx-auto max-w-3xl text-center mb-16">
+          <h2
+            class="text-3xl font-bold tracking-tight text-foreground sm:text-4xl lg:text-5xl"
+          >
+            Have Questions?
           </h2>
-          <Accordion type="single" class="mt-8 w-full text-left" collapsible default-value="item-1">
-            <AccordionItem v-for="item in faqItems" :key="item.value" :value="item.value">
-              <AccordionTrigger class="text-lg">
-                {{ item.title }}
+          <p class="mt-4 text-lg text-muted-foreground sm:text-xl">
+            Find answers to common inquiries about the PhilexScholar program.
+          </p>
+        </div>
+        <div class="mx-auto max-w-3xl">
+          <!-- Using Accordion for FAQ -->
+          <Accordion
+            type="single"
+            class="w-full space-y-4"
+            collapsible
+            default-value="item-1"
+          >
+            <AccordionItem
+              v-for="(item, index) in faqItems"
+              :key="item.value"
+              :value="item.value"
+              class="border rounded-lg bg-background shadow-sm transition-shadow hover:shadow-md overflow-hidden"
+            >
+              <AccordionTrigger
+                class="flex w-full items-center justify-between p-5 text-lg font-medium text-left hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=open]:bg-muted/50"
+                :aria-controls="`faq-content-${index}`"
+                :id="`faq-trigger-${index}`"
+              >
+                <span>{{ item.title }}</span>
+                <!-- Icon indicates state -->
+                <Icon
+                  icon="lucide:chevron-down"
+                  class="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180"
+                />
+                <!-- Using Lucide component directly:
+                    <ChevronDown class="h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    -->
               </AccordionTrigger>
-              <AccordionContent>
+              <AccordionContent
+                class="px-5 pb-5 pt-0 text-base text-muted-foreground data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+                :id="`faq-content-${index}`"
+                :aria-labelledby="`faq-trigger-${index}`"
+                role="region"
+              >
                 {{ item.content }}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
         </div>
+        <div class="mt-12 text-center">
+          <p class="text-muted-foreground">
+            Can't find your answer?
+            <a
+              :href="supportEmail"
+              class="font-medium text-primary underline-offset-4 hover:underline"
+              >Contact Support</a
+            >.
+          </p>
+        </div>
       </div>
     </section>
+    <section
+      class="relative border-t bg-background py-24 sm:py-32 overflow-hidden"
+    >
+      <!-- Background Elements -->
+      <div
+        aria-hidden="true"
+        class="absolute inset-0 -z-10 opacity-40 dark:opacity-50"
+      >
+        <div
+          class="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"
+        />
+        <div
+          class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 h-[600px] w-[120%] rounded-full bg-gradient-radial from-primary/10 via-primary/5 to-transparent blur-[80px]"
+        />
+      </div>
 
-    <!-- CTA Section -->
-    <section class="border-t">
-      <div class="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div class="rounded-2xl px-6 py-12 sm:p-16">
-          <div class="mx-auto max-w-2xl text-center">
-            <h2 class="text-3xl font-bold tracking-tight sm:text-6xl">
-              Ready to ship faster?
-            </h2>
-            <p class="mx-auto mt-4 max-w-xl text-lg">
-              You're already blazing fast with Laravel.<br> Larasonic is about to make your shipping speed
-              supersonic. 🚀
-            </p>
-            <div class="mt-8 flex justify-center gap-4">
-              <Button as="a" :href="githubUrl" target="_blank" rel="noopener noreferrer">
-                View on GitHub
-              </Button>
-            </div>
+      <div class="container relative mx-auto px-4 z-10">
+        <div class="mx-auto max-w-3xl text-center">
+          <h2
+            class="text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+          >
+            Ready to Start Your Journey?
+          </h2>
+          <p
+            class="mt-6 text-lg text-muted-foreground sm:text-xl"
+            :style="{ textWrap: 'pretty' }"
+          >
+            Join the community of Philex scholars. Register today to begin your
+            application or log in to manage your scholarship details with ease.
+            Secure your future, powered by PhilexScholar.
+          </p>
+          <div
+            class="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          >
+            <Button
+              v-if="canRegister"
+              :as="Link"
+              href="/register"
+              size="xl"
+              class="w-full sm:w-auto px-10 py-3.5"
+            >
+              <Icon icon="lucide:user-plus" class="mr-2 h-5 w-5" />
+              Register Now
+            </Button>
+            <Button
+              v-if="canLogin"
+              :as="Link"
+              href="/login"
+              size="xl"
+              variant="outline"
+              class="w-full sm:w-auto px-10 py-3.5"
+            >
+              <Icon icon="lucide:log-in" class="mr-2 h-5 w-5" />
+              Login to Dashboard
+            </Button>
           </div>
-        </div>
-        <div class="mx-auto w-full sm:w-2/3 items-center justify-center">
-          <Terminal />
         </div>
       </div>
     </section>

@@ -12,7 +12,7 @@ class RoleSeeder extends Seeder
     {
         // Create roles
         $admin = Role::create(['name' => 'admin']);
-        $scholar = Role::create(['name' => 'scholar']);
+        $scholar = Role::create(['name' => 'User']);
 
         // Create permissions
         $permissions = [

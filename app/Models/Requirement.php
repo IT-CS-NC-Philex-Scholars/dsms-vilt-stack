@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Requirement extends Model
 {
 
-    use HasFactory, SoftDeletes; 
+    use HasFactory, SoftDeletes;
 
 
         protected $fillable = [
@@ -33,10 +34,9 @@ class Requirement extends Model
             return $this->belongsTo(Scholar::class);
         }
 
-        public function scholarships()
-        {
-            return $this->belongsToMany(Scholarship::class, 'scholarship_requirement');
-                        // ->withPivot('is_mandatory', 'submission_order', 'description')
-                        // ->withTimestamps();
-        }
+        public function scholarship(): BelongsTo // Changed from belongsToMany, added return type hint
+               {
+                   // Assumes your foreign key column is named 'scholarship_id'
+                   return $this->belongsTo(Scholarship::class);
+               }
 }

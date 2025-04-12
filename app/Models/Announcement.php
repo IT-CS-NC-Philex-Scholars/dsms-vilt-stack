@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,4 +21,5 @@ class Announcement extends Model
         protected $casts = [
             'published_at' => 'datetime'
         ];
+
 }

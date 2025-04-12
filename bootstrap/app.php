@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\PreQualificationMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use Sentry\Laravel\Integration;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\HandleInertiaRequests;
@@ -24,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'pre-qualified' => PreQualificationMiddleware::class,
+            'role' => RoleMiddleware::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'stripe/*',

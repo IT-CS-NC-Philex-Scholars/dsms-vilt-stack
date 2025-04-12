@@ -34,15 +34,8 @@ Route::prefix('auth')->group(
     }
 );
 
-Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
-
-    // Scholar routes
-    Route::middleware(['role:scholar'])->group(function () {
-        Route::get('/scholar/dashboard', [ScholarController::class, 'dashboard'])->name('scholar.dashboard');
-        Route::post('/scholar/documents', [ScholarController::class, 'uploadDocument'])->name('scholar.upload-document');
-        Route::post('/scholar/submit', [ScholarController::class, 'submitApplication'])->name('scholar.submit-application');
-    });
 
     Route::delete('/auth/destroy/{provider}', [OauthController::class, 'destroy'])->name('oauth.destroy');
 
@@ -53,7 +46,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         ->only(['index', 'create', 'store', 'show']);
 });
 
-Route::middleware(['auth', 'verified', 'role:scholar'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:User'])->group(function () {
   Route::get('/scholar/dashboard', [ScholarController::class, 'dashboard'])
   ->name('scholar.dashboard');
   Route::post('/scholar/documents', [ScholarController::class, 'uploadDocument'])

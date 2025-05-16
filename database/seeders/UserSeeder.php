@@ -37,8 +37,8 @@ final class UserSeeder extends Seeder
             $admin->switchTeam($admin->personalTeam());
         }
 
-        if (!$admin->hasRole('Admin')) {
-            $admin->assignRole('Admin'); // Assign Admin role if not already assigned
+        if (!$admin->hasRole('super_admin')) {
+            $admin->assignRole('super_admin'); // Assign Admin role if not already assigned
         }
 
         if ($admin->wasRecentlyCreated) {

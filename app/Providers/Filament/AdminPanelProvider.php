@@ -20,6 +20,7 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use DutchCodingCompany\FilamentDeveloperLogins\FilamentDeveloperLoginsPlugin;
 
 final class AdminPanelProvider extends PanelProvider
 {
@@ -58,6 +59,12 @@ final class AdminPanelProvider extends PanelProvider
             ->plugins([
                 // \TomatoPHP\FilamentSimpleTheme\FilamentSimpleThemePlugin::make(),
                 FilamentShieldPlugin::make(),
+                FilamentDeveloperLoginsPlugin::make()
+                ->enabled()
+                ->users([
+                    'Admin' => 'admin@example.com',
+                    // 'User' => 'user@example.com',
+                ])
             ])
             ->authMiddleware([
                 Authenticate::class,

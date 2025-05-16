@@ -3,27 +3,27 @@ import { useSeoMeta } from '@unhead/vue'
 // Default SEO meta tags
 const defaultSeoMeta = {
   title: 'Home',
-  titleTemplate: '%s | Larasonic Modern Laravel SaaS Starter Kit',
-  description: 'Larasonic is a modern Laravel boilerplate for the VILT stack (Vue, Inertia, Laravel, TailwindCSS). Clone and start building scalable, maintainable, and production-ready applications quickly.',
-  keywords: 'Larasonic, Laravel boilerplate, Laravel VILT, Vue, Inertia, TailwindCSS, Laravel Octane, Docker, FilamentPHP, OpenAI integration, Laravel Cashier, Laravel Sanctum',
+  titleTemplate: '%s | PhilexScholar - Digital Scholarship Management Hub',
+  description: 'PhilexScholar is a centralized platform for managing scholarships in the Philex Mines community, streamlining the entire scholarship lifecycle from application to disbursement.',
+  keywords: 'PhilexScholar, Philex Mines, scholarship management, digital scholarship, student portal, scholarship application, VILT stack, Laravel, Vue, Inertia, TailwindCSS',
   robots: 'index, follow',
   themeColor: '#000000',
 
   // Open Graph
-  ogTitle: '%s | Larasonic Modern Laravel SaaS Starter Kit',
-  ogDescription: 'Larasonic is a modern Laravel SaaS starter kit for the VILT stack. Clone the repo, start building scalable and maintainable applications quickly.',
-  ogUrl: 'https://larasonic.com',
+  ogTitle: '%s | PhilexScholar - Digital Scholarship Management Hub',
+  ogDescription: 'PhilexScholar addresses the challenges of traditional scholarship management by providing a centralized, efficient, and user-friendly platform for the Philex Mines community.',
+  ogUrl: window.location.origin,
   ogType: 'website',
-  ogImage: 'https://larasonic.com/images/og.webp',
-  ogSiteName: 'Larasonic',
+  ogImage: `${window.location.origin}/images/dashboard-image.png`,
+  ogSiteName: 'PhilexScholar',
   ogLocale: 'en_US',
 
   // Twitter
-  twitterTitle: '%s | Larasonic Modern Laravel SaaS Starter Kit',
-  twitterDescription: 'Larasonic is a modern Laravel SaaS starter kit for the VILT stack. Clone the repo, start building scalable and maintainable applications quickly.',
+  twitterTitle: '%s | PhilexScholar - Digital Scholarship Management Hub',
+  twitterDescription: 'PhilexScholar addresses the challenges of traditional scholarship management by providing a centralized, efficient, and user-friendly platform for the Philex Mines community.',
   twitterCard: 'summary_large_image',
-  twitterImage: 'https://larasonic.com/images/og.webp',
-  twitterSite: '@pushpak1300',
+  twitterImage: `${window.location.origin}/images/dashboard-image.png`,
+  twitterSite: '@philexscholar',
 }
 
 /**

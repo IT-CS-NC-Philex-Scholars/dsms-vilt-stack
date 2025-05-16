@@ -12,6 +12,7 @@
     "php": "^8.3",
     "bezhansalleh/filament-shield": "^3.3",
     "blaspsoft/blasp": "^1.2",
+    "dutchcodingcompany/filament-developer-logins": "^1.8",
     "echolabsdev/prism": "^0.26.0",
     "filament/filament": "^3.2",
     "inertiajs/inertia-laravel": "^2.0",

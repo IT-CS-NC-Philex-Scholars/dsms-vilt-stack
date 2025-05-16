@@ -7,28 +7,40 @@
 
     <link rel="canonical" href="{{ url()->current() }}">
 
+    <!-- Primary Meta Tags -->
+    <meta name="author" content="Philex Mines Technology Team">
+    <meta name="theme-color" content="#000000">
+
     <!-- Favicon & App Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <!-- Structured Data (Example: JSON-LD Schema.org) -->
+    <!-- Default OG Image Fallback (in case Vue metadata doesn't load) -->
+    <meta property="og:image" content="{{ asset('images/dashboard-image.png') }}">
+
+    <!-- Structured Data (JSON-LD Schema.org) -->
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
-            "@type": "SoftwareApplication",
-            "name": "Larasonic",
-            "url": "https://larasonic.com/",
-            "image": "https://larasonic.com/images/og.webp",
-            "description": "A modern Laravel SaaS starter kit for the VILT stack. Clone the repo, start building scalable and maintainable applications quickly.",
-            "applicationCategory": "DeveloperTool",
+            "@type": "WebApplication",
+            "name": "PhilexScholar",
+            "url": "{{ url('/') }}",
+            "image": "{{ asset('images/dashboard-image.png') }}",
+            "description": "PhilexScholar is a centralized platform for managing scholarships in the Philex Mines community, streamlining the entire scholarship lifecycle.",
+            "applicationCategory": "Education",
             "operatingSystem": "All",
             "offers": {
                 "@type": "Offer",
                 "price": "0",
-                "priceCurrency": "USD",
+                "priceCurrency": "PHP",
                 "category": "Free"
+            },
+            "provider": {
+                "@type": "Organization",
+                "name": "Philex Mines Technology Team",
+                "url": "{{ url('/') }}"
             }
         }
     </script>

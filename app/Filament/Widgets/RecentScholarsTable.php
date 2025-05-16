@@ -38,7 +38,7 @@ final class RecentScholarsTable extends BaseWidget
                     ->tooltip(fn (Scholar $record): string => $record->school?->name ?? '')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('type')
-                    ->formatStateUsing(fn (string $state): string => Str::of($state)->replace('_', ' ')->title())
+                    ->formatStateUsing(fn (string $state): string => Str::of($state)->replace('_', ' ')->title()->toString())
                     ->badge(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date Added')

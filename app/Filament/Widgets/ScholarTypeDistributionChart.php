@@ -1,17 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Widgets;
 
 use App\Models\Scholar;
-use Filament\Widgets\ChartWidget;
-use Illuminate\Database\Eloquent\Collection; // For type hint
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Filament\Widgets\ChartWidget; // For type hint
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Collection;
 
-class ScholarTypeDistributionChart extends ChartWidget
+final class ScholarTypeDistributionChart extends ChartWidget
 {
     protected static ?string $heading = 'Scholar Distribution by Type';
+
     protected static ?int $sort = 3; // Keep or adjust
+
     // Consider changing color theme if desired e.g. 'success', 'warning'
     protected static string $color = 'primary';
 
@@ -54,7 +58,7 @@ class ScholarTypeDistributionChart extends ChartWidget
         $counts = $data->values();
 
         // Generate the backgroundColor array dynamically based on the actual labels found
-        $backgroundColors = $labels->map(function ($type) use ($typeColors, $defaultColor) {
+        $backgroundColors = $labels->map(function ($type) use ($typeColors, $defaultColor): string {
             return $typeColors[$type] ?? $defaultColor; // Use specific color if defined, else default
         });
 
@@ -69,7 +73,7 @@ class ScholarTypeDistributionChart extends ChartWidget
                 ],
             ],
             // Format labels clearly (e.g., High_School -> High School)
-            'labels' => $labels->map(fn($type) => Str::title(str_replace('_', ' ', $type)))->toArray(),
+            'labels' => $labels->map(fn ($type) => Str::title(str_replace('_', ' ', $type)))->toArray(),
         ];
     }
 

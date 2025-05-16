@@ -7,7 +7,9 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Application; // Import Application
+use Illuminate\Foundation\Application;
+
+ // Import Application
 
 final class WelcomeController extends Controller
 {

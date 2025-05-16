@@ -1,22 +1,26 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AnnouncementResource\Pages;
-// use App\Filament\Resources\AnnouncementResource\RelationManagers; // Keep commented if no relations
-use App\Models\Announcement;
-use Carbon\CarbonInterface;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+// use App\Filament\Resources\AnnouncementResource\RelationManagers; // Keep commented if no relations
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Carbon\CarbonInterface;
+use App\Models\Announcement;
+use Illuminate\Support\Carbon;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Carbon; // Import Carbon for date comparison
-use Filament\Tables\Filters\TrashedFilter; // Import TrashedFilter
+use Filament\Tables\Filters\TrashedFilter;
+use Illuminate\Database\Eloquent\SoftDeletingScope; // Import Carbon for date comparison
+use App\Filament\Resources\AnnouncementResource\Pages;
 
-class AnnouncementResource extends Resource
+ // Import TrashedFilter
+
+final class AnnouncementResource extends Resource
 {
     protected static ?string $model = Announcement::class;
 
@@ -30,6 +34,7 @@ class AnnouncementResource extends Resource
 
     // Optional: Customize the model label
     protected static ?string $modelLabel = 'Announcement';
+
     protected static ?string $pluralModelLabel = 'Announcements';
 
     public static function form(Form $form): Form
@@ -108,33 +113,34 @@ class AnnouncementResource extends Resource
                     ->formatStateUsing(fn (string $state): string => ucfirst($state)) // Capitalize 'low', 'medium', 'high'
                     ->sortable(),
 
-                    Tables\Columns\IconColumn::make('is_published')
-                                       ->label('Status')
-                                       ->boolean()
-                                       ->getStateUsing(function (Announcement $record): bool {
-                                           // Check if published_at is set and is in the past or now
-                                           // Make sure published_at is actually a Carbon instance before calling isPast()
-                                           return $record->published_at instanceof \Carbon\CarbonInterface && $record->published_at->isPast();
-                                       })
-                                       ->trueIcon('heroicon-o-check-badge')
-                                       ->falseIcon('heroicon-o-clock') // Use clock for scheduled/draft
-                                       ->trueColor('success')
-                                       ->falseColor('warning')
-                                       ->tooltip(function (Announcement $record): string {
-                                            if (!$record->published_at) return 'Draft';
-                                            // Also check here if it's a Carbon instance
-                                            return $record->published_at instanceof \Carbon\CarbonInterface && $record->published_at->isPast() ? 'Published' : 'Scheduled';
-                                       }),
+                Tables\Columns\IconColumn::make('is_published')
+                    ->label('Status')
+                    ->boolean()
+                    ->getStateUsing(fn(Announcement $record): bool =>
+                        // Check if published_at is set and is in the past or now
+                        // Make sure published_at is actually a Carbon instance before calling isPast()
+                        $record->published_at instanceof CarbonInterface && $record->published_at->isPast())
+                    ->trueIcon('heroicon-o-check-badge')
+                    ->falseIcon('heroicon-o-clock') // Use clock for scheduled/draft
+                    ->trueColor('success')
+                    ->falseColor('warning')
+                    ->tooltip(function (Announcement $record): string {
+                        if (! $record->published_at) {
+                            return 'Draft';
+                        }
 
+                        // Also check here if it's a Carbon instance
+                        return $record->published_at instanceof CarbonInterface && $record->published_at->isPast() ? 'Published' : 'Scheduled';
+                    }),
 
-                                       Tables\Columns\TextColumn::make('published_at')
-                                                          ->label('Publish Date')
-                                                          ->dateTime() // Keep this, Filament handles basic formatting well
-                                                          ->sortable()
-                                                          // ---- Use CarbonInterface here ----
-                                                          ->formatStateUsing(fn (?CarbonInterface $state): string => $state ? $state->isoFormat('MMM D, YYYY HH:mm') : 'Draft')
-                                                          // Using isoFormat for potentially better localization support, but 'M d, Y H:i' is fine too.
-                                                          ->toggleable(isToggledHiddenByDefault: false),
+                Tables\Columns\TextColumn::make('published_at')
+                    ->label('Publish Date')
+                    ->dateTime() // Keep this, Filament handles basic formatting well
+                    ->sortable()
+                                   // ---- Use CarbonInterface here ----
+                    ->formatStateUsing(fn (?CarbonInterface $state): string => $state instanceof \Carbon\CarbonInterface ? $state->isoFormat('MMM D, YYYY HH:mm') : 'Draft')
+                                   // Using isoFormat for potentially better localization support, but 'M d, Y H:i' is fine too.
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -147,7 +153,7 @@ class AnnouncementResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true), // Hide by default
 
                 Tables\Columns\TextColumn::make('deleted_at')
-                     ->label('Deleted On')
+                    ->label('Deleted On')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true), // Hide by default
@@ -169,7 +175,7 @@ class AnnouncementResource extends Resource
                     ->queries(
                         true: fn (Builder $query) => $query->whereNotNull('published_at')->where('published_at', '<=', now()),
                         false: fn (Builder $query) => $query->whereNull('published_at')->orWhere('published_at', '>', now()),
-                        blank: fn (Builder $query) => $query, // No filter if 'All' is selected
+                        blank: fn (Builder $query): \Illuminate\Database\Eloquent\Builder => $query, // No filter if 'All' is selected
                     )
                     ->native(false),
 

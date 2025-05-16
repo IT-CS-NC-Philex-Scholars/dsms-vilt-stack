@@ -1,25 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class CheckPreQualification
+final class CheckPreQualification
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
-     public function handle(Request $request, Closure $next)
-         {
-             if (!session('is_pre_qualified')) {
-                 return redirect()->route('pre-qualification.create')
-                     ->with('error', 'Please complete the pre-qualification form first.');
-             }
+    public function handle(Request $request, Closure $next)
+    {
+        if (! session('is_pre_qualified')) {
+            return redirect()->route('pre-qualification.create')
+                ->with('error', 'Please complete the pre-qualification form first.');
+        }
 
-             return $next($request);
-         }
+        return $next($request);
+    }
 }

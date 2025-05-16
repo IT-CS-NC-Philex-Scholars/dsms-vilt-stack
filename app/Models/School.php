@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class School extends Model
+final class School extends Model
 {
     use SoftDeletes;
 
@@ -22,11 +24,12 @@ class School extends Model
         'website',
         'description',
         'is_active',
-        'additional_info'
+        'additional_info',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'additional_info' => 'array'
+        'additional_info' => 'array',
+        'type' => 'string',
     ];
 }

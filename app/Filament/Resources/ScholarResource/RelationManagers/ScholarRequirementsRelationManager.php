@@ -1,16 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\ScholarResource\RelationManagers;
 
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\RelationManagers\RelationManager;
 
-class ScholarRequirementsRelationManager extends RelationManager
+final class ScholarRequirementsRelationManager extends RelationManager
 {
     protected static string $relationship = 'Requirements';
 
@@ -48,4 +48,3 @@ class ScholarRequirementsRelationManager extends RelationManager
             ]);
     }
 }
-

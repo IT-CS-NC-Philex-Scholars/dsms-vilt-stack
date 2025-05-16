@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ScholarController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\User\OauthController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\User\LoginLinkController;
 use App\Http\Controllers\PreQualificationController;
-use App\Http\Controllers\ScholarController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 
 Route::get('/', [WelcomeController::class, 'home'])->name('home');
@@ -36,6 +36,14 @@ Route::prefix('auth')->group(
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    
+    // Dashboard document management routes
+    Route::post('/dashboard/upload-document', [DashboardController::class, 'uploadDocument'])
+        ->name('dashboard.upload-document');
+    Route::post('/dashboard/submit-application', [DashboardController::class, 'submitApplication'])
+        ->name('dashboard.submit-application');
+    Route::post('/dashboard/apply-scholarship', [DashboardController::class, 'applyScholarship'])
+        ->name('dashboard.apply-scholarship');
 
     Route::delete('/auth/destroy/{provider}', [OauthController::class, 'destroy'])->name('oauth.destroy');
 
@@ -47,16 +55,16 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'role:User'])->group(function () {
-  Route::get('/scholar/dashboard', [ScholarController::class, 'dashboard'])
-  ->name('scholar.dashboard');
-  Route::post('/scholar/documents', [ScholarController::class, 'uploadDocument'])
-  ->name('scholar.upload-document');
-  Route::post('/scholar/submit', [ScholarController::class, 'submitApplication'])
-  ->name('scholar.submit-application');
+    Route::get('/scholar/dashboard', [ScholarController::class, 'dashboard'])
+        ->name('scholar.dashboard');
+    Route::post('/scholar/documents', [ScholarController::class, 'uploadDocument'])
+        ->name('scholar.upload-document');
+    Route::post('/scholar/submit', [ScholarController::class, 'submitApplication'])
+        ->name('scholar.submit-application');
 
-  // Add this new route for scholarship applications
-  Route::post('/scholar/apply-scholarship', [ScholarController::class, 'applyScholarship'])
-  ->name('scholar.apply-scholarship');
+    // Add this new route for scholarship applications
+    Route::post('/scholar/apply-scholarship', [ScholarController::class, 'applyScholarship'])
+        ->name('scholar.apply-scholarship');
 });
 
 Route::get('/register', [RegisteredUserController::class, 'create'])

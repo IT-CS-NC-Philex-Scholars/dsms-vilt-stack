@@ -1,25 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Announcement extends Model
+final class Announcement extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
+    use SoftDeletes;
+    protected $fillable = [
+        'title',
+        'content',
+        'priority',
+        'published_at',
+    ];
 
-        protected $fillable = [
-            'title',
-            'content',
-            'priority',
-            'published_at'
-        ];
-
-        protected $casts = [
-            'published_at' => 'datetime'
-        ];
-
+    protected $casts = [
+        'published_at' => 'datetime',
+    ];
 }

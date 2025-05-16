@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\AnnouncementResource\Pages;
 
-use App\Filament\Resources\AnnouncementResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\AnnouncementResource;
 
-class EditAnnouncement extends EditRecord
+final class EditAnnouncement extends EditRecord
 {
     protected static string $resource = AnnouncementResource::class;
 

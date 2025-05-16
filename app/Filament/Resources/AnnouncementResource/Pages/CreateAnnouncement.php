@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\AnnouncementResource\Pages;
 
-use App\Filament\Resources\AnnouncementResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\AnnouncementResource;
 
-class CreateAnnouncement extends CreateRecord
+final class CreateAnnouncement extends CreateRecord
 {
     protected static string $resource = AnnouncementResource::class;
 }

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\ScholarshipResource\Pages;
 
-use App\Filament\Resources\ScholarshipResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\ScholarshipResource;
 
-class EditScholarship extends EditRecord
+final class EditScholarship extends EditRecord
 {
     protected static string $resource = ScholarshipResource::class;
 

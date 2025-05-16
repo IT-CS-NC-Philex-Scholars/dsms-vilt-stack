@@ -1,16 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Widgets;
 
 use App\Models\Requirement;
+use Illuminate\Support\Str;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
-class RequirementStatusChart extends ChartWidget
+final class RequirementStatusChart extends ChartWidget
 {
     protected static ?string $heading = 'Overall Requirement Status';
+
     protected static ?int $sort = 7;
+
     protected static string $color = 'danger';
 
     protected function getData(): array
@@ -33,7 +37,7 @@ class RequirementStatusChart extends ChartWidget
             // Add other statuses and their colors
         ];
 
-        $backgroundColors = $data->keys()->map(fn($status) => $statusColors[$status] ?? '#9CA3AF')->toArray(); // Default to gray
+        $backgroundColors = $data->keys()->map(fn ($status): string => $statusColors[$status] ?? '#9CA3AF')->toArray(); // Default to gray
 
         return [
             'datasets' => [

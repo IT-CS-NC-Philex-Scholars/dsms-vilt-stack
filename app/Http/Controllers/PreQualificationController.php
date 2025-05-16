@@ -1,24 +1,29 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Models\PreQualification; // Keep if you plan to log attempts
-use Illuminate\Http\Request;
+// Keep if you plan to log attempts
 use Inertia\Inertia;
-use App\Models\School; // Make sure you have this model
+use App\Models\School;
+use Illuminate\Http\Request; // Make sure you have this model
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\Rule; // Required for conditional validation
 
-class PreQualificationController extends Controller
+ // Required for conditional validation
+
+final class PreQualificationController extends Controller
 {
     public function create()
     {
         // Fetch schools - Assuming 'School' model exists and has relevant schools
         // You might want to add a 'type' column (shs, college) to your schools
         // table later for more specific filtering if needed.
-        $schools = School::select('id', 'name')
+        $schools = \App\Models\School::query()->select('id', 'name', 'type')
                         // ->whereIn('type', ['shs', 'college']) // Example if you add types
-                        ->orderBy('name')
-                        ->get();
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('PreQualification/Form', [
             'canLogin' => Route::has('login'),
@@ -59,6 +64,7 @@ class PreQualificationController extends Controller
             // Conditional College Fields
             'course' => ['required_if:educational_level,college', 'nullable', 'string', 'max:255'],
             'year_level' => ['required_if:educational_level,college', 'nullable', 'integer', 'min:1', 'max:6'], // Adjust max as needed
+            'semester_system' => ['required_if:educational_level,college', 'nullable', 'string', Rule::in(['semestral', 'trimesteral'])], // Added semester_system validation
         ]);
 
         // Eligibility Check (Universal for now)
@@ -67,9 +73,10 @@ class PreQualificationController extends Controller
             // Only store relevant fields based on educational_level
             $preQualData = $validated;
             if ($validated['educational_level'] === 'shs') {
-                unset($preQualData['course'], $preQualData['year_level']);
+                unset($preQualData['course'], $preQualData['year_level'], $preQualData['semester_system']); // Ensure semester_system is unset for SHS
             } else { // college
                 unset($preQualData['strand'], $preQualData['shs_grade_level']);
+                // semester_system is relevant for college, so it's kept
             }
 
             session([

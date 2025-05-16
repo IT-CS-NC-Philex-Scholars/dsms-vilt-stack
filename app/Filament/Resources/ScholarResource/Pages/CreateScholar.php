@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\ScholarResource\Pages;
 
-use App\Filament\Resources\ScholarResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Resources\ScholarResource;
 
-class CreateScholar extends CreateRecord
+final class CreateScholar extends CreateRecord
 {
     protected static string $resource = ScholarResource::class;
 }

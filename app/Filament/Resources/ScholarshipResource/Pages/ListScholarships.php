@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\ScholarshipResource\Pages;
 
-use App\Filament\Resources\ScholarshipResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use App\Filament\Resources\ScholarshipResource;
 
-class ListScholarships extends ListRecords
+final class ListScholarships extends ListRecords
 {
     protected static string $resource = ScholarshipResource::class;
 

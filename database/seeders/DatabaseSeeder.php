@@ -4,12 +4,8 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-
 
 final class DatabaseSeeder extends Seeder
 {
@@ -19,7 +15,7 @@ final class DatabaseSeeder extends Seeder
     public function run(): void
     {
 
-        DB::transaction(function () { // Use transaction for atomicity
+        DB::transaction(function (): void { // Use transaction for atomicity
             $this->call([
                 // Core Setup First
                 RoleAndPermissionSeeder::class,
@@ -32,7 +28,7 @@ final class DatabaseSeeder extends Seeder
                 // Dependent Data
                 Scholar::class,         // Uses ScholarFactory, needs Schools
                 RequirementSeeder::class, // Links Scholars and Scholarships
-                AnnouncementSeeder::class,// Uses AnnouncementFactory
+                AnnouncementSeeder::class, // Uses AnnouncementFactory
             ]);
         });
 

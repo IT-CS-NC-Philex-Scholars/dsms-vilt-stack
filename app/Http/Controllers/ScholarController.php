@@ -1,16 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Models\Application;
-use App\Models\Document;
 use App\Models\User;
-use App\Notifications\NewApplicationSubmitted;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Models\Document;
+use App\Models\Application;
+use Illuminate\Http\Request;
+use App\Notifications\NewApplicationSubmitted;
 
-class ScholarController extends Controller
+final class ScholarController extends Controller
 {
     public function dashboard()
     {
@@ -19,15 +20,15 @@ class ScholarController extends Controller
             ->latest()
             ->first();
 
-        if (!$application) {
-            $application = Application::create([
+        if (! $application) {
+            $application = \App\Models\Application::query()->create([
                 'user_id' => auth()->id(),
-                'status' => 'draft'
+                'status' => 'draft',
             ]);
         }
 
         return Inertia::render('Scholar/Dashboard', [
-            'application' => $application
+            'application' => $application,
         ]);
     }
 
@@ -39,12 +40,12 @@ class ScholarController extends Controller
         ]);
 
         $application = auth()->user()->applications()->latest()->firstOrFail();
-        
+
         // Delete existing document of same type if exists
         $application->documents()->where('type', $request->type)->delete();
 
         $path = $request->file('document')->store('documents', 'public');
-        
+
         $document = new Document([
             'type' => $request->type,
             'file_path' => $path,
@@ -67,11 +68,11 @@ class ScholarController extends Controller
         }
 
         $application->update([
-            'status' => 'pending_review'
+            'status' => 'pending_review',
         ]);
 
         // Notify admins about new application
-        User::role('admin')->each(function ($admin) use ($application) {
+        User::role('admin')->each(function ($admin) use ($application): void {
             $admin->notify(new NewApplicationSubmitted($application));
         });
 

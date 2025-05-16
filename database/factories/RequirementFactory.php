@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
-use App\Models\Requirement;
 use App\Models\Scholar;
+use App\Models\Requirement;
 use App\Models\Scholarship;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class RequirementFactory extends Factory
+final class RequirementFactory extends Factory
 {
     protected $model = Requirement::class;
 
@@ -30,7 +32,7 @@ class RequirementFactory extends Factory
             'scholar_id' => Scholar::query()->inRandomOrder()->first()->id ?? Scholar::factory(), // Placeholder
             'scholarship_id' => Scholarship::query()->inRandomOrder()->first()->id ?? Scholarship::factory(), // Placeholder
             'document_type' => $this->faker->randomElement(['Transcript of Records', 'Certificate of Enrollment', 'Proof of Income', 'Recommendation Letter']),
-            'file_path' => 'documents/' . $this->faker->uuid . '.pdf',
+            'file_path' => 'documents/'.$this->faker->uuid.'.pdf',
             'status' => $status,
             'remarks' => ($status === 'rejected') ? $this->faker->sentence : null,
             'submitted_at' => $submitted_at,

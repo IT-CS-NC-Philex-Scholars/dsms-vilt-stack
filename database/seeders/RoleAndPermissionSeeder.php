@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
@@ -7,7 +9,7 @@ use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
-class RoleAndPermissionSeeder extends Seeder
+final class RoleAndPermissionSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -53,6 +55,6 @@ class RoleAndPermissionSeeder extends Seeder
             // 'create_requirement', // If they submit through the system
         ]);
 
-         $this->command->info('Roles and Permissions seeded successfully.');
+        $this->command->info('Roles and Permissions seeded successfully.');
     }
 }

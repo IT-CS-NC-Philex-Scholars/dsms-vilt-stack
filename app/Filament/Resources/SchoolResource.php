@@ -1,30 +1,30 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\SchoolResource\Pages;
-use App\Filament\Resources\SchoolResource\RelationManagers;
-use App\Models\School;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\School;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Filters\TrashedFilter;
+use Filament\Resources\Resource;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\KeyValue;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
+use App\Filament\Resources\SchoolResource\Pages;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-
-class SchoolResource extends Resource
+final class SchoolResource extends Resource
 {
     protected static ?string $model = School::class;
 
@@ -38,8 +38,8 @@ class SchoolResource extends Resource
 
     // Optional: Customize the model label
     protected static ?string $modelLabel = 'School';
-    protected static ?string $pluralModelLabel = 'Schools';
 
+    protected static ?string $pluralModelLabel = 'Schools';
 
     public static function form(Form $form): Form
     {
@@ -106,25 +106,25 @@ class SchoolResource extends Resource
                     ]),
 
                 Forms\Components\Section::make('Contact & Details')
-                     ->columns(2)
+                    ->columns(2)
                     ->schema([
-                         TextInput::make('contact_number')
+                        TextInput::make('contact_number')
                             ->tel() // Use telephone input type
                             ->maxLength(50)
                             ->nullable(),
 
-                         TextInput::make('email')
+                        TextInput::make('email')
                             ->email() // Use email input type with validation
                             ->maxLength(255)
                             ->nullable(),
 
-                         TextInput::make('website')
+                        TextInput::make('website')
                             ->url() // Use URL input type with validation
                             ->prefix('https://') // Helpful prefix
                             ->maxLength(255)
                             ->nullable(),
 
-                         Toggle::make('is_active')
+                        Toggle::make('is_active')
                             ->label('Active Status')
                             ->helperText('Inactive schools might be hidden in some parts of the application.')
                             ->default(true)
@@ -132,9 +132,9 @@ class SchoolResource extends Resource
                             ->offIcon('heroicon-s-x-circle')
                             ->onColor('success')
                             ->offColor('danger'),
-                     ]),
+                    ]),
 
-                 Forms\Components\Section::make('Additional Information')
+                Forms\Components\Section::make('Additional Information')
                     ->collapsible() // Make it collapsible if it's less frequently used
                     ->schema([
                         Textarea::make('description')
@@ -142,15 +142,15 @@ class SchoolResource extends Resource
                             ->nullable()
                             ->columnSpanFull(),
 
-                         KeyValue::make('additional_info')
-                             ->label('Custom Fields')
-                             ->helperText('Add any extra key-value data specific to this school.')
-                             ->keyLabel('Field Name')
-                             ->valueLabel('Field Value')
-                             ->reorderable() // Allow reordering pairs
-                             ->addActionLabel('Add Custom Field')
-                             ->columnSpanFull(),
-                     ]),
+                        KeyValue::make('additional_info')
+                            ->label('Custom Fields')
+                            ->helperText('Add any extra key-value data specific to this school.')
+                            ->keyLabel('Field Name')
+                            ->valueLabel('Field Value')
+                            ->reorderable() // Allow reordering pairs
+                            ->addActionLabel('Add Custom Field')
+                            ->columnSpanFull(),
+                    ]),
 
             ]);
     }
@@ -180,7 +180,7 @@ class SchoolResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('level')
-                     ->formatStateUsing(fn (string $state): string => ucfirst(str_replace('_', ' ', $state)))
+                    ->formatStateUsing(fn (string $state): string => ucfirst(str_replace('_', ' ', $state)))
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
 
@@ -210,8 +210,8 @@ class SchoolResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true), // Hide by default
 
-                 TextColumn::make('deleted_at')
-                     ->label('Deleted On')
+                TextColumn::make('deleted_at')
+                    ->label('Deleted On')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true), // Hide by default
@@ -243,12 +243,12 @@ class SchoolResource extends Resource
                     ->native(false),
 
                 // Example filter for province - useful if you have many schools
-                 SelectFilter::make('province')
-                     ->options(fn (): array => School::query()->pluck('province', 'province')->unique()->all())
-                     ->searchable()
-                     ->native(false),
+                SelectFilter::make('province')
+                    ->options(fn (): array => School::query()->pluck('province', 'province')->unique()->all())
+                    ->searchable()
+                    ->native(false),
 
-                 TernaryFilter::make('is_active')
+                TernaryFilter::make('is_active')
                     ->label('Status')
                     ->boolean()
                     ->trueLabel('Active')

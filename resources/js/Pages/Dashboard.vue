@@ -44,11 +44,21 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/Components/shadcn/ui/accordion";
+import { Label } from "@/Components/shadcn/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/shadcn/ui/select";
 
 import { Icon } from "@iconify/vue";
 import { usePage, Link, useForm } from "@inertiajs/vue3";
 import { computed, ref, watch } from "vue"; // Import ref and watch
 import { toast } from "vue-sonner";
+import axios from "axios"; // Import axios for document uploads
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -62,6 +72,7 @@ const props = defineProps({
   documentTypes: Array, // Definitions of required/optional docs
   availableScholarships: Array, // Scholarships open for application
   activeScholarships: Array, // Scholarships the user has applied for/is part of
+  currentAcademicYear: Number, // Added for academic year
 });
 
 // --- Ref for Dialogs/Sheets ---
@@ -69,17 +80,23 @@ const showScholarshipDetails = ref(false);
 const selectedScholarship = ref(null);
 const showDocumentUploader = ref(false);
 const showTour = ref(false); // Optional tour state
+const showSemesterSelector = ref(false);
 
 // --- Upload Logic Refs ---
 const uploadFormRef = ref(null);
 const fileInputRef = ref(null);
 const currentDocumentType = ref(null);
 const uploadingFile = ref(false);
+const currentDocTypeMeta = ref(null);
+const selectedSemester = ref(null);
 
 // --- Forms ---
 const docUploadForm = useForm({
   document_type: null,
   file: null,
+  semester_type: null,
+  semester_number: null,
+  academic_year: null,
 });
 
 const appSubmitForm = useForm({});
@@ -100,6 +117,12 @@ const userInitials = computed(() => {
       .toUpperCase()
       .slice(0, 2) || "S"
   );
+});
+
+const needsToCompleteApplication = computed(() => {
+  return props.application &&
+         (props.application.status === 'draft' || props.application.status === 'incomplete') &&
+         progressPercentage.value < 100;
 });
 
 // Status Badge Variant Mapping
@@ -301,8 +324,16 @@ const uploadedRequiredCount = computed(() => {
   const requiredTypes = props.documentTypes
     .filter((doc) => doc.required)
     .map((doc) => doc.type);
-  return props.documents.filter((doc) => requiredTypes.includes(doc.type))
-    .length;
+  
+  // Count unique document types that are required
+  const uploadedTypes = new Set();
+  props.documents.forEach(doc => {
+    if (requiredTypes.includes(doc.type)) {
+      uploadedTypes.add(doc.type);
+    }
+  });
+  
+  return uploadedTypes.size;
 });
 
 const progressPercentage = computed(() => {
@@ -334,23 +365,147 @@ const eligibleScholarships = computed(() => {
 
 // --- Actions ---
 
+// *** ADDED: Get semester info based on Scholar model ***
+const scholarSemesterInfo = computed(() => {
+  if (!props.scholar) return null;
+  
+  const semesterType = props.scholar.additional_details?.semester_system || null;
+  const yearLevel = props.scholar.year_level || null;
+  
+  return {
+    type: semesterType,
+    yearLevel: yearLevel,
+  };
+});
+
+// *** ADDED: Compute max semesters based on semester type ***
+const maxSemestersPerYear = computed(() => {
+  if (!scholarSemesterInfo.value || !scholarSemesterInfo.value.type) return 2;
+  return scholarSemesterInfo.value.type === 'semestral' ? 2 : 3;
+});
+
+// *** ADDED: Generate semester options for select dropdown ***
+const semesterOptions = computed(() => {
+  const options = [];
+  const currentYear = props.currentAcademicYear || new Date().getFullYear();
+  
+  // Add current and previous year as options
+  for (let year = currentYear; year >= currentYear - 1; year--) {
+    const yearLabel = `${year}-${year + 1} Academic Year`;
+    
+    for (let sem = 1; sem <= maxSemestersPerYear.value; sem++) {
+      const semLabel = scholarSemesterInfo.value?.type === 'trimesteral'
+        ? (sem === 1 ? '1st Trimester' : (sem === 2 ? '2nd Trimester' : '3rd Trimester'))
+        : (sem === 1 ? '1st Semester' : '2nd Semester');
+      
+      options.push({
+        label: `${semLabel} (${yearLabel})`,
+        value: {
+          semester_type: scholarSemesterInfo.value?.type || 'semestral',
+          semester_number: sem,
+          academic_year: year,
+        }
+      });
+    }
+  }
+  
+  return options;
+});
+
+// *** ADDED: Group semester options by academic year for better UX ***
+const semesterOptionsByYear = computed(() => {
+  const grouped = {};
+  
+  semesterOptions.value.forEach(option => {
+    const yearLabel = `${option.value.academic_year}-${option.value.academic_year + 1}`;
+    
+    if (!grouped[yearLabel]) {
+      grouped[yearLabel] = {
+        year: yearLabel,
+        options: []
+      };
+    }
+    
+    grouped[yearLabel].options.push(option);
+  });
+  
+  // Convert to array and sort by most recent year first
+  return Object.values(grouped).sort((a, b) => {
+    const yearA = parseInt(a.year.split('-')[0]);
+    const yearB = parseInt(b.year.split('-')[0]);
+    return yearB - yearA;
+  });
+});
+
 // Open file input for specific document type
 const openFileUpload = (docType) => {
+  // Find the document type metadata
+  currentDocTypeMeta.value = props.documentTypes.find(dt => dt.type === docType);
   currentDocumentType.value = docType;
+  
   docUploadForm.reset(); // Clear previous file if any
   docUploadForm.document_type = docType;
-  fileInputRef.value?.click();
+  
+  // If document requires semester information and scholar has a semester type
+  if (currentDocTypeMeta.value?.requires_semester && scholarSemesterInfo.value?.type) {
+    // Set default semester to latest one
+    const latestSemester = semesterOptions.value[0]?.value;
+    if (latestSemester) {
+      docUploadForm.semester_type = latestSemester.semester_type;
+      docUploadForm.semester_number = latestSemester.semester_number;
+      docUploadForm.academic_year = latestSemester.academic_year;
+    }
+  } else {
+    // Reset semester fields for documents that don't need it
+    docUploadForm.semester_type = null;
+    docUploadForm.semester_number = null;
+    docUploadForm.academic_year = null;
+  }
+  
+  // Use timeout to ensure the file input is reset before clicking
+  setTimeout(() => {
+    fileInputRef.value?.click();
+  }, 100);
 };
 
-// Handle file selection
+// *** MODIFIED: Handle file selection with semester check ***
 const handleFileChange = (event) => {
   const file = event.target.files[0];
-  if (file && currentDocumentType.value) {
-    docUploadForm.file = file;
-    uploadDocument(); // Automatically upload on selection
+  if (!file || !currentDocumentType.value) {
+    return;
   }
+  
+  docUploadForm.file = file;
+  
+  // Check if semester selection is required for this document type
+  if (currentDocTypeMeta.value?.requires_semester && scholarSemesterInfo.value?.type) {
+    // Show semester selector dialog
+    selectedSemester.value = null; // Reset selection
+    showSemesterSelector.value = true;
+  } else {
+    // No semester info needed, proceed with upload
+    uploadDocument();
+  }
+  
   // Reset file input visually
   if (event.target) event.target.value = null;
+};
+
+// *** ADDED: Function to handle semester selection confirmation ***
+const confirmSemesterSelection = () => {
+  if (!selectedSemester.value) {
+    toast.error("Please select a semester/trimester.");
+    return;
+  }
+  
+  // Apply selected semester to the upload form
+  docUploadForm.semester_type = selectedSemester.value.semester_type;
+  docUploadForm.semester_number = selectedSemester.value.semester_number;
+  docUploadForm.academic_year = selectedSemester.value.academic_year;
+  
+  // Close dialog and proceed with upload
+  showSemesterSelector.value = false;
+  uploadDocument();
 };
 
 // Upload the document
@@ -359,23 +514,44 @@ const uploadDocument = () => {
     toast.error("File or document type missing.");
     return;
   }
+  
+  // Validate semester information if needed
+  if (currentDocTypeMeta.value?.requires_semester && scholarSemesterInfo.value?.type && 
+      (!docUploadForm.semester_type || !docUploadForm.semester_number || !docUploadForm.academic_year)) {
+    toast.error("Please select a semester for this document.");
+    return;
+  }
+  
   uploadingFile.value = true;
+  
+  // Use Inertia's form submission to maintain SPA behavior
   docUploadForm.post(route("dashboard.upload-document"), {
-    // Use named route
     preserveScroll: true,
     forceFormData: true,
     onSuccess: () => {
-      toast.success(
-        `${currentDocumentType.value.replace(/_/g, " ")} uploaded successfully!`,
-      );
+      let successMsg = `${currentDocumentType.value.replace(/_/g, " ")} uploaded successfully!`;
+      
+      // Add semester info to success message if relevant
+      if (docUploadForm.semester_type && docUploadForm.semester_number) {
+        const semText = docUploadForm.semester_type === 'semestral' ? 'Semester' : 'Trimester';
+        const semNum = docUploadForm.semester_number === 1 ? '1st' : 
+                     (docUploadForm.semester_number === 2 ? '2nd' : '3rd');
+        successMsg += ` (${semNum} ${semText} ${docUploadForm.academic_year}-${docUploadForm.academic_year + 1})`;
+      }
+      
+      toast.success(successMsg);
       docUploadForm.reset();
       currentDocumentType.value = null;
+      currentDocTypeMeta.value = null;
     },
     onError: (errors) => {
       console.error("Upload Error:", errors);
       const errorMsg =
         errors.file ||
         errors.document_type ||
+        errors.semester_type ||
+        errors.semester_number ||
+        errors.academic_year ||
         "Upload failed. Please check the file and try again.";
       toast.error(errorMsg);
     },
@@ -440,9 +616,46 @@ const applyForScholarship = () => {
 
 // Condition to check if user can submit application/apply for scholarships
 const canSubmit = computed(() => {
-  // Must have an application, and all required docs must be uploaded
-  return props.application && progressPercentage.value === 100;
+  // Must have an approved application and all required docs must be uploaded
+  return props.application && 
+         props.application.status === 'approved' && 
+         progressPercentage.value === 100;
 });
+
+// Helper to get specific document from props.documents by type and semester
+const getDocumentByTypeAndSemester = (docType, semType, semNumber, acadYear) => {
+  if (!props.documents) return null;
+  
+  // If semester info is provided, filter by it
+  if (semType && semNumber && acadYear) {
+    return props.documents.find(doc => 
+      doc.type === docType &&
+      doc.semester_type === semType &&
+      doc.semester_number === semNumber &&
+      doc.academic_year === acadYear
+    );
+  }
+  
+  // Otherwise just filter by type
+  return props.documents.find(doc => doc.type === docType);
+};
+
+// Get semester-specific documents formatted for display
+const getSemesterDocuments = (docType) => {
+  if (!props.documents) return [];
+  
+  // Filter documents by type and group them by semester
+  return props.documents.filter(doc => 
+    doc.type === docType && 
+    doc.semester_type && 
+    doc.semester_number && 
+    doc.academic_year
+  ).sort((a, b) => {
+    // Sort by academic year (most recent first) and then by semester number
+    if (a.academic_year !== b.academic_year) return b.academic_year - a.academic_year;
+    return b.semester_number - a.semester_number;
+  });
+};
 
 // --- Watch for Flash Messages ---
 watch(
@@ -457,6 +670,100 @@ watch(
   },
   { immediate: true },
 ); // Check immediately on component load
+
+// Check if there are semester-specific documents
+const hasSemesterDocuments = computed(() => {
+  return props.documents?.some(doc => doc.semester_type && doc.semester_number && doc.academic_year) || false;
+});
+
+// Group semester documents by academic year and semester
+const semesterDocumentsGrouped = computed(() => {
+  if (!props.documents) return [];
+  
+  const semesterDocs = props.documents.filter(d => 
+    d.semester_type && d.semester_number && d.academic_year
+  );
+  
+  // Group by academic year
+  const byYear = {};
+  semesterDocs.forEach(doc => {
+    const yearKey = `${doc.academic_year}-${doc.academic_year + 1}`;
+    if (!byYear[yearKey]) {
+      byYear[yearKey] = {
+        year: yearKey,
+        semesters: {}
+      };
+    }
+    
+    // Group by semester within year
+    const semKey = `${doc.semester_type}_${doc.semester_number}`;
+    if (!byYear[yearKey].semesters[semKey]) {
+      byYear[yearKey].semesters[semKey] = {
+        type: doc.semester_type,
+        number: doc.semester_number,
+        documents: []
+      };
+    }
+    
+    byYear[yearKey].semesters[semKey].documents.push(doc);
+  });
+  
+  // Convert to arrays for easier template iteration
+  const result = Object.values(byYear).map(year => {
+    year.semesters = Object.values(year.semesters).sort((a, b) => a.number - b.number);
+    return year;
+  }).sort((a, b) => {
+    // Sort by most recent academic year
+    const yearA = parseInt(a.year.split('-')[0]);
+    const yearB = parseInt(b.year.split('-')[0]);
+    return yearB - yearA;
+  });
+  
+  return result;
+});
+
+// Get document type label from type code
+const getDocumentTypeLabel = (type) => {
+  const docType = props.documentTypes?.find(d => d.type === type);
+  return docType?.label || type.replace(/_/g, ' ');
+};
+
+// Get semester label from type and number
+const getSemesterLabel = (type, number) => {
+  if (type === 'semestral') {
+    return number === 1 ? '1st Semester' : '2nd Semester';
+  } else {
+    return number === 1 ? '1st Trimester' : 
+           number === 2 ? '2nd Trimester' : '3rd Trimester';
+  }
+};
+
+// Check if application is under review
+const isApplicationUnderReview = computed(() => {
+  const status = props.application?.status?.toLowerCase();
+  return status === 'submitted' || status === 'pending' || status === 'pending_review';
+});
+
+const getDocumentStatusInfo = (docType, isOptional = false) => {
+  const doc = getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year);
+  if (!doc) return { text: 'Pending', variant: 'secondary' };
+  return {
+    text: doc.status ? doc.status.replace('_', ' ') : 'Pending',
+    variant: getStatusVariant(doc.status)
+  };
+};
+
+const getIconForDocType = (docType, isOptional = false) => {
+  const doc = getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year);
+  if (!doc) return 'lucide:file-plus-2';
+  return doc.status === 'approved' ? 'lucide:check-circle' : (doc.status === 'rejected' ? 'lucide:x-circle' : 'lucide:file-clock');
+};
+
+const getColorForDocTypeStatus = (docType, isOptional = false) => {
+  const doc = getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year);
+  if (!doc) return 'text-muted-foreground';
+  return doc.status === 'approved' ? 'text-success' : (doc.status === 'rejected' ? 'text-destructive' : 'text-warning');
+};
 </script>
 
 <template>
@@ -469,6 +776,26 @@ watch(
 
     <div class="py-8 sm:py-12">
       <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6 lg:space-y-8">
+        <!-- Prominent Alert for Incomplete Application -->
+        <Alert
+          v-if="needsToCompleteApplication"
+          variant="warning"
+          class="mb-6 lg:mb-8 mx-4 sm:mx-0"
+        >
+          <Icon icon="lucide:alert-triangle" class="h-5 w-5" />
+          <AlertTitle class="font-semibold">Action Required: Complete Your Application</AlertTitle>
+          <AlertDescription class="mt-1">
+            Your scholarship application is not yet complete. Please upload all required documents to proceed.
+            <Button
+              variant="link"
+              class="p-0 h-auto font-semibold text-yellow-700 dark:text-yellow-300 hover:underline ml-1 inline-block align-baseline"
+              @click="showDocumentUploader = true"
+            >
+              Upload Documents Now
+            </Button>
+          </AlertDescription>
+        </Alert>
+
         <!-- Welcome Message -->
         <div class="px-4 sm:px-0 flex justify-between items-center">
           <div>
@@ -485,11 +812,37 @@ watch(
           </Button>
         </div>
 
-        <!-- Main Content Area -->
+        <!-- Application Under Review Notification - Show when application is under review -->
+        <Card 
+          v-if="isApplicationUnderReview"
+          class="shadow-md border-l-4 border-l-info mx-4 sm:mx-0"
+        >
+          <CardContent class="p-6">
+            <div class="flex flex-col md:flex-row items-center gap-4">
+              <div class="bg-info/20 p-4 rounded-full">
+                <Icon icon="lucide:hourglass" class="h-12 w-12 text-info" />
+              </div>
+              <div class="text-center md:text-left">
+                <h2 class="text-xl font-semibold mb-2">Application Under Review</h2>
+                <p class="text-muted-foreground">
+                  Your application is currently being evaluated by our team. During this review period, some dashboard features are limited.
+                </p>
+                <p class="mt-3 text-sm font-medium">
+                  We'll notify you of any updates. You can still view your profile details and submitted documents below.
+                </p>
+                <p class="mt-2 text-xs text-muted-foreground">
+                  Application submitted on: {{ formatDate(props.application?.updated_at) }}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <!-- Main Content Area - Show full content when not under review, simplified when under review -->
         <div class="px-4 sm:px-0">
           <!-- Top Row: Key Action Cards -->
           <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6 lg:mb-8">
-            <!-- Application status card -->
+            <!-- Application status card (always shown) -->
             <Card
               class="shadow-sm hover:shadow-md transition-shadow border-l-4"
               :class="{
@@ -585,7 +938,7 @@ watch(
               </CardContent>
             </Card>
 
-            <!-- Scholarships card -->
+            <!-- Scholarships card - show in limited mode if under review -->
             <Card
               class="shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-primary"
             >
@@ -603,24 +956,35 @@ watch(
                     class="h-10 w-10 bg-muted rounded-full flex items-center justify-center flex-shrink-0"
                   >
                     <Icon
-                      icon="lucide:search-check"
-                      class="h-5 w-5 text-primary"
+                      :icon="
+                        isApplicationUnderReview || props.application?.status !== 'approved'
+                          ? 'lucide:lock'
+                          : 'lucide:search-check'
+                      "
+                      :class="
+                        isApplicationUnderReview || props.application?.status !== 'approved'
+                          ? 'text-muted-foreground'
+                          : 'text-primary'
+                      "
+                      class="h-5 w-5"
                     />
                   </div>
                   <div>
                     <h3 class="font-semibold text-lg text-foreground">
-                      {{ eligibleScholarships.length }}
+                      {{ (isApplicationUnderReview || props.application?.status !== 'approved') ? '—' : eligibleScholarships.length }}
                     </h3>
                     <p class="text-xs text-muted-foreground leading-tight">
-                      {{
-                        eligibleScholarships.length > 0
-                          ? "Scholarships matching your profile"
-                          : "No new opportunities now"
-                      }}
+                      {{ isApplicationUnderReview 
+                          ? 'Available after review' 
+                          : (props.application?.status !== 'approved'
+                            ? 'Available after approval'
+                            : (eligibleScholarships.length > 0
+                              ? "Scholarships matching your profile"
+                              : "No new opportunities now")) }}
                     </p>
                   </div>
                 </div>
-                <div class="mb-3 flex items-center gap-2 text-xs">
+                <div v-if="!isApplicationUnderReview && props.application?.status === 'approved'" class="mb-3 flex items-center gap-2 text-xs">
                   <Badge variant="outline"
                     >{{ eligibleScholarships.length }} Available</Badge
                   >
@@ -628,11 +992,18 @@ watch(
                     >{{ activeScholarships?.length || 0 }} Applied</Badge
                   >
                 </div>
+                <div v-else class="p-2 bg-muted rounded-md mb-3">
+                  <p class="text-xs text-center text-muted-foreground">
+                    {{ isApplicationUnderReview 
+                      ? "Scholarship options will be available after your application review is complete."
+                      : "Scholarship options will be available after your application is approved." }}
+                  </p>
+                </div>
 
                 <Button
                   variant="outline"
                   class="w-full"
-                  :disabled="!canSubmit && eligibleScholarships.length > 0"
+                  :disabled="isApplicationUnderReview || props.application?.status !== 'approved' || (!canSubmit && eligibleScholarships.length > 0)"
                   @click="
                     !canSubmit && eligibleScholarships.length > 0
                       ? (showDocumentUploader = true)
@@ -642,24 +1013,29 @@ watch(
                 >
                   <Icon
                     :icon="
-                      !canSubmit && eligibleScholarships.length > 0
+                      isApplicationUnderReview || props.application?.status !== 'approved'
                         ? 'lucide:lock'
-                        : 'lucide:search'
+                        : (!canSubmit && eligibleScholarships.length > 0
+                        ? 'lucide:lock'
+                          : 'lucide:search')
                     "
                     class="mr-2 h-4 w-4"
                   />
-                  {{
-                    !canSubmit && eligibleScholarships.length > 0
-                      ? "Complete Profile to Apply"
-                      : eligibleScholarships.length > 0
-                        ? "Browse Scholarships"
-                        : "Check Back Later"
+                  {{ isApplicationUnderReview 
+                      ? "Available After Review" 
+                      : (props.application?.status !== 'approved'
+                      ? "Available After Approval"
+                      : (!canSubmit && eligibleScholarships.length > 0
+                        ? "Complete Profile to Apply"
+                        : eligibleScholarships.length > 0
+                          ? "Browse Scholarships"
+                              : "Check Back Later")) 
                   }}
                 </Button>
               </CardContent>
             </Card>
 
-            <!-- Documents card -->
+            <!-- Documents card - show in limited mode if under review -->
             <Card
               class="shadow-sm hover:shadow-md transition-shadow border-l-4 border-l-accent"
             >
@@ -678,32 +1054,37 @@ watch(
                   >
                     <Icon
                       :icon="
-                        progressPercentage === 100
+                        isApplicationUnderReview
+                          ? 'lucide:file-check'
+                          : (progressPercentage === 100
                           ? 'lucide:check-check'
-                          : 'lucide:file-warning'
+                            : 'lucide:file-warning')
                       "
                       class="h-5 w-5"
                       :class="
-                        progressPercentage === 100
+                        isApplicationUnderReview
+                          ? 'text-info'
+                          : (progressPercentage === 100
                           ? 'text-success'
-                          : 'text-warning'
+                            : 'text-warning')
                       "
                     />
                   </div>
                   <div>
                     <h3 class="font-semibold text-lg text-foreground">
-                      {{ progressPercentage }}%
+                      {{ isApplicationUnderReview ? 'Submitted' : progressPercentage + '%' }}
                     </h3>
                     <p class="text-xs text-muted-foreground leading-tight">
-                      {{
-                        progressPercentage < 100
+                      {{ isApplicationUnderReview 
+                          ? "Documents under evaluation" 
+                          : (progressPercentage < 100
                           ? "Required documents pending"
-                          : "All required documents uploaded"
+                            : "All required documents uploaded") 
                       }}
                     </p>
                   </div>
                 </div>
-                <div class="mb-3 flex items-center gap-2 text-xs">
+                <div v-if="!isApplicationUnderReview" class="mb-3 flex items-center gap-2 text-xs">
                   <Badge variant="outline"
                     >{{ uploadedRequiredCount }}/{{
                       requiredDocumentsCount
@@ -714,37 +1095,39 @@ watch(
                     >{{ documents?.length || 0 }} Total Uploaded</Badge
                   >
                 </div>
+                <div v-else class="mb-3">
+                  <Badge variant="outline" class="w-full justify-center">{{ documents?.length || 0 }} Documents Submitted</Badge>
+                </div>
 
                 <Button
-                  :variant="
-                    uploadedRequiredCount < requiredDocumentsCount
-                      ? 'default'
-                      : 'outline'
-                  "
+                  :variant="isApplicationUnderReview ? 'outline' : (uploadedRequiredCount < requiredDocumentsCount ? 'default' : 'outline')"
                   class="w-full"
                   @click="showDocumentUploader = true"
                   size="sm"
                 >
                   <Icon
                     :icon="
-                      uploadedRequiredCount < requiredDocumentsCount
+                      isApplicationUnderReview
+                        ? 'lucide:eye'
+                        : (uploadedRequiredCount < requiredDocumentsCount
                         ? 'lucide:file-plus'
-                        : 'lucide:folder-cog'
+                          : 'lucide:folder-cog')
                     "
                     class="mr-2 h-4 w-4"
                   />
-                  {{
-                    uploadedRequiredCount < requiredDocumentsCount
+                  {{ isApplicationUnderReview 
+                      ? "View Submitted Documents" 
+                      : (uploadedRequiredCount < requiredDocumentsCount
                       ? "Upload Documents"
-                      : "Manage Documents"
+                        : "Manage Documents") 
                   }}
                 </Button>
               </CardContent>
             </Card>
           </div>
 
-          <!-- Bottom Row: Detailed Info -->
-          <div class="grid lg:grid-cols-3 gap-6 lg:gap-8">
+          <!-- Bottom Row: Detailed Info - Hide more detailed content when under review -->
+          <div v-if="!isApplicationUnderReview" class="grid lg:grid-cols-3 gap-6 lg:gap-8">
             <!-- Left Column: Personal & Active Scholarships -->
             <div class="lg:col-span-1 space-y-6 lg:space-y-8">
               <Card class="shadow-sm">
@@ -904,7 +1287,26 @@ watch(
                 </CardHeader>
                 <CardContent class="pt-4">
                   <div
-                    v-if="eligibleScholarships.length === 0"
+                    v-if="props.application?.status !== 'approved'"
+                    class="text-center py-8"
+                  >
+                    <div
+                      class="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3"
+                    >
+                      <Icon
+                        icon="lucide:lock"
+                        class="h-6 w-6 text-muted-foreground"
+                      />
+                    </div>
+                    <h3 class="font-medium mb-1 text-sm">
+                      Application Pending Approval
+                    </h3>
+                    <p class="text-xs text-muted-foreground max-w-xs mx-auto">
+                      You'll be able to see and apply for scholarships once your main application is approved by our team.
+                    </p>
+                  </div>
+                  <div
+                    v-else-if="eligibleScholarships.length === 0"
                     class="text-center py-8"
                   >
                     <div
@@ -941,7 +1343,7 @@ watch(
                             class="flex-shrink-0 whitespace-nowrap"
                           >
                             {{
-                              getDaysRemaining(scholarship.application_deadline)
+                              getDaysRemaining(scholarship.application_period_end || scholarship.application_deadline)
                             }}
                             days left
                           </Badge>
@@ -960,7 +1362,7 @@ watch(
                             <span
                               >Deadline:
                               {{
-                                formatDate(scholarship.application_deadline)
+                                formatDate(scholarship.application_period_end || scholarship.application_deadline)
                               }}</span
                             >
                           </div>
@@ -1021,88 +1423,237 @@ watch(
                   </Button>
                 </CardHeader>
                 <CardContent class="pt-4">
-                  <div class="space-y-3">
+                  <div class="space-y-4">
                     <p
                       class="text-xs text-muted-foreground text-center py-4"
                       v-if="!documents || documents.length === 0"
                     >
                       No documents have been uploaded yet.
                     </p>
-                    <div
-                      v-else
-                      v-for="document in documents.slice(0, 4)"
-                      :key="document.id"
-                      class="flex items-center justify-between p-2 border rounded-lg text-sm"
-                    >
-                      <div class="flex items-center gap-2">
-                        <Icon
-                          :icon="
-                            hasDocument(document.type)
-                              ? 'lucide:check-circle'
-                              : 'lucide:file'
-                          "
-                          :class="
-                            hasDocument(document.type)
-                              ? 'text-success'
-                              : 'text-muted-foreground'
-                          "
-                          class="h-4 w-4 flex-shrink-0"
-                        />
-                        <span
-                          class="font-medium truncate"
-                          :title="
-                            documentTypes.find((d) => d.type === document.type)
-                              ?.label || document.type
-                          "
-                        >
-                          {{
-                            documentTypes.find((d) => d.type === document.type)
-                              ?.label || document.type.replace(/_/g, " ")
-                          }}
-                        </span>
+                    
+                    <div v-else>
+                      <!-- Regular documents (non-semester) -->
+                      <div v-if="documents.filter(d => !d.semester_type).length > 0" class="mb-4">
+                        <h4 class="text-sm font-medium text-muted-foreground mb-2 flex items-center">
+                          <Icon icon="lucide:file-stack" class="h-4 w-4 mr-1.5" />
+                          General Documents
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div
+                            v-for="document in documents.filter(d => !d.semester_type || !d.semester_number).slice(0, 4)" 
+                            :key="document.id"
+                            class="flex items-center justify-between p-3 border rounded-lg text-sm bg-card hover:shadow-md transition-shadow"
+                          >
+                            <div class="flex items-center gap-2 min-w-0">
+                              <Icon
+                                :icon="document.status === 'approved' ? 'lucide:check-circle' : (document.status === 'rejected' ? 'lucide:x-circle' : 'lucide:file-clock')"
+                                :class="{
+                                  'text-success': document.status === 'approved',
+                                  'text-destructive': document.status === 'rejected',
+                                  'text-warning': document.status === 'pending' || !document.status,
+                                  'text-info': document.status === 'submitted' || document.status === 'pending_review'
+                                }"
+                                class="h-5 w-5 flex-shrink-0"
+                              />
+                              <span class="font-medium truncate" :title="getDocumentTypeLabel(document.type)">
+                                {{ getDocumentTypeLabel(document.type) }}
+                              </span>
+                            </div>
+                            <div class="flex items-center gap-1.5 flex-shrink-0">
+                              <Badge
+                                size="sm"
+                                :variant="
+                                  document.status === 'approved'
+                                    ? 'success'
+                                    : document.status === 'rejected'
+                                      ? 'destructive'
+                                      : (document.status === 'pending' || !document.status ? 'warning' : 'info')
+                                "
+                              >
+                                {{ document.status ? document.status.replace('_',' ') : 'Pending' }}
+                              </Badge>
+                                <!-- Add a view button/modal trigger here if needed -->
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div class="flex items-center gap-1 flex-shrink-0">
-                        <Badge
-                          size="sm"
-                          :variant="
-                            document.status === 'approved'
-                              ? 'success'
-                              : document.status === 'rejected'
-                                ? 'destructive'
-                                : 'secondary'
-                          "
-                        >
-                          {{ document.status }}
-                        </Badge>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          class="h-7 w-7"
-                          title="View Document"
-                        >
-                          <Icon icon="lucide:eye" class="h-3.5 w-3.5" />
+                      
+                      <!-- Semester-based documents (grouped) -->
+                      <div v-if="hasSemesterDocuments">
+                        <h4 class="text-sm font-medium text-muted-foreground mb-2 flex items-center">
+                          <Icon icon="lucide:calendar-check-2" class="h-4 w-4 mr-1.5" />
+                          Semester-Specific Documents
+                        </h4>
+                        <div class="space-y-3">
+                          <div v-for="(yearGroup, yearIndex) in semesterDocumentsGrouped" :key="yearIndex" 
+                              class="p-3 border rounded-lg bg-muted/30 dark:bg-muted/10">
+                            <div class="text-xs font-semibold text-muted-foreground mb-2">
+                              {{ yearGroup.year }} Academic Year
+                            </div>
+                            <div class="space-y-2">
+                              <div v-for="(semGroup, semIndex) in yearGroup.semesters" :key="semIndex" 
+                                  class="border border-dashed dark:border-gray-700 rounded-md p-2.5 bg-card dark:bg-background/50">
+                                <div class="flex justify-between items-center text-xs text-muted-foreground mb-1.5">
+                                  <span class="font-semibold text-foreground">
+                                    {{ getSemesterLabel(semGroup.type, semGroup.number) }}
+                                  </span>
+                                  <Badge variant="outline" size="sm">{{ semGroup.documents.length }} item(s)</Badge>
+                                </div>
+                                <div class="space-y-1.5">
+                                  <div 
+                                    v-for="doc in semGroup.documents" 
+                                    :key="doc.id"
+                                    class="flex items-center justify-between p-2 border bg-background dark:bg-muted/20 rounded-md text-xs hover:shadow-sm transition-shadow"
+                                  >
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                      <Icon 
+                                        :icon="doc.status === 'approved' ? 'lucide:check-circle' : (doc.status === 'rejected' ? 'lucide:x-circle' : 'lucide:file-clock')" 
+                                        :class="{
+                                          'text-success': doc.status === 'approved',
+                                          'text-destructive': doc.status === 'rejected',
+                                          'text-warning': doc.status === 'pending' || !doc.status,
+                                          'text-info': doc.status === 'submitted' || doc.status === 'pending_review'
+                                        }"
+                                        class="h-4 w-4 flex-shrink-0" 
+                                      />
+                                      <span class="truncate" :title="getDocumentTypeLabel(doc.type)">{{ getDocumentTypeLabel(doc.type) }}</span>
+                                    </div>
+                                    <Badge 
+                                      size="sm"
+                                      :variant="doc.status === 'approved' ? 'success' : (doc.status === 'rejected' ? 'destructive' : (doc.status === 'pending' || !doc.status ? 'warning' : 'info'))"
+                                    >
+                                      {{ doc.status ? doc.status.replace('_',' ') : 'Pending' }}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div v-if="documents.length > 4" class="text-center pt-4">
+                        <Button variant="outline" size="sm" @click="showDocumentUploader = true">
+                          <Icon icon="lucide:folder-cog" class="h-4 w-4 mr-1.5" />
+                          Manage All {{ documents.length }} Documents
                         </Button>
                       </div>
-                    </div>
-                    <div v-if="documents.length > 4" class="text-center pt-2">
-                      <Button
-                        variant="link"
-                        size="sm"
-                        @click="showDocumentUploader = true"
-                      >
-                        View All {{ documents.length }} Documents
-                      </Button>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
           </div>
+          
+          <!-- Limited information section for application under review -->
+          <div v-else class="grid gap-6 lg:gap-8">
+            <!-- Personal Information Card -->
+            <Card class="shadow-sm">
+              <CardHeader>
+                <CardTitle class="text-base font-medium flex items-center">
+                  <Icon icon="lucide:user-circle" class="h-4 w-4 mr-2 text-muted-foreground" />
+                  Personal Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent class="text-sm space-y-2">
+                <div v-if="props.scholar">
+                  <p>
+                    <strong class="text-muted-foreground font-normal w-20 inline-block">Name:</strong>
+                    {{ props.scholar.first_name }} {{ props.scholar.last_name }}
+                  </p>
+                  <p>
+                    <strong class="text-muted-foreground font-normal w-20 inline-block">Email:</strong>
+                    {{ props.scholar.email }}
+                  </p>
+                  <p>
+                    <strong class="text-muted-foreground font-normal w-20 inline-block">Contact:</strong>
+                    {{ props.scholar.contact_number }}
+                  </p>
+        </div>
+                <div v-else class="text-muted-foreground text-xs text-center py-4">
+                  Scholar profile not found.
+                </div>
+              </CardContent>
+              <CardFooter class="border-t pt-3">
+                <Button :as="Link" :href="route('profile.show')" variant="outline" size="sm">
+                  <Icon icon="lucide:user" class="mr-1.5 h-3.5 w-3.5" />
+                  View Full Profile
+                </Button>
+              </CardFooter>
+            </Card>
+            
+            <!-- Document Summary Card -->
+            <Card class="shadow-sm" v-if="documents && documents.length > 0">
+              <CardHeader>
+                <CardTitle class="text-base font-medium flex items-center">
+                  <Icon icon="lucide:folder-check" class="h-4 w-4 mr-2 text-muted-foreground" />
+                  Submitted Documents Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div class="p-3 rounded-lg border bg-muted/50 mb-4">
+                  <p class="text-sm text-center">
+                    Your documents have been submitted and are currently under review.
+                  </p>
+                </div>
+                
+                <div class="space-y-2">
+                  <div class="flex justify-between items-center text-sm">
+                    <span>Total Documents:</span>
+                    <Badge>{{ documents.length }}</Badge>
+                  </div>
+                  <div class="flex justify-between items-center text-sm">
+                    <span>Standard Documents:</span>
+                    <Badge variant="outline">{{ documents.filter(d => !d.semester_type || !d.semester_number).length }}</Badge>
+                  </div>
+                  <div class="flex justify-between items-center text-sm">
+                    <span>Semester Documents:</span>
+                    <Badge variant="outline">{{ documents.filter(d => d.semester_type && d.semester_number).length }}</Badge>
+                  </div>
+                </div>
+                
+                <Button variant="outline" class="w-full mt-4" @click="showDocumentUploader = true" size="sm">
+                  <Icon icon="lucide:eye" class="mr-2 h-4 w-4" />
+                  View Submitted Documents
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <!-- What's Next Card -->
+            <Card class="shadow-sm bg-muted/10">
+              <CardHeader>
+                <CardTitle class="text-base font-medium flex items-center">
+                  <Icon icon="lucide:help-circle" class="h-4 w-4 mr-2 text-muted-foreground" />
+                  What's Next?
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ol class="space-y-4 pl-6 list-decimal text-sm">
+                  <li class="pl-1">
+                    <span class="font-medium">Application Review</span>
+                    <p class="text-muted-foreground text-xs mt-1">Our team is currently reviewing your application and documents.</p>
+                  </li>
+                  <li class="pl-1">
+                    <span class="font-medium">Verification Process</span>
+                    <p class="text-muted-foreground text-xs mt-1">We may contact you for additional information during this phase.</p>
+                  </li>
+                  <li class="pl-1">
+                    <span class="font-medium">Decision Notification</span>
+                    <p class="text-muted-foreground text-xs mt-1">You'll receive an email about the status of your application.</p>
+                  </li>
+                  <li class="pl-1">
+                    <span class="font-medium">Scholarship Matching</span>
+                    <p class="text-muted-foreground text-xs mt-1">Once approved, you'll be matched with eligible scholarships.</p>
+                  </li>
+                </ol>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Scholarship Details Dialog (Copied from previous template, ensure props match) -->
+    <!-- Scholarship Details Dialog -->
     <Dialog v-model:open="showScholarshipDetails">
       <DialogContent class="sm:max-w-lg">
         <DialogHeader>
@@ -1143,12 +1694,12 @@ watch(
                 />
                 <div>
                   <p class="font-medium">
-                    {{ formatDate(selectedScholarship?.application_deadline) }}
+                    {{ formatDate(selectedScholarship?.application_period_end || selectedScholarship?.application_deadline) }}
                   </p>
                   <p class="text-xs text-orange-600">
                     {{
                       getDaysRemaining(
-                        selectedScholarship?.application_deadline,
+                        selectedScholarship?.application_period_end || selectedScholarship?.application_deadline,
                       )
                     }}
                     days left
@@ -1234,7 +1785,15 @@ watch(
             </ul>
           </div>
 
-          <Alert v-if="!canSubmit" variant="warning">
+          <Alert v-if="!canSubmit && props.application?.status !== 'approved'" variant="warning">
+            <Icon icon="lucide:alert-triangle" class="h-4 w-4" />
+            <AlertTitle>Application Not Yet Approved</AlertTitle>
+            <AlertDescription>
+              You can only apply for scholarships after your main application has been approved by our team.
+            </AlertDescription>
+          </Alert>
+
+          <Alert v-else-if="!canSubmit" variant="warning">
             <Icon icon="lucide:alert-triangle" class="h-4 w-4" />
             <AlertTitle>Application Incomplete</AlertTitle>
             <AlertDescription>
@@ -1275,21 +1834,21 @@ watch(
 
     <!-- Document Uploader Sheet (Copied from previous template, ensure props match) -->
     <Sheet v-model:open="showDocumentUploader">
-      <SheetContent class="w-full sm:max-w-md p-0 flex flex-col">
+      <SheetContent class="w-full sm:max-w-lg p-0 flex flex-col">
         <SheetHeader class="p-6 border-b">
           <SheetTitle class="flex items-center text-lg">
             <Icon icon="lucide:folder-up" class="mr-2 h-5 w-5 text-primary" />
-            Manage Documents
+            Manage Your Documents
           </SheetTitle>
           <SheetDescription>
-            Upload and manage required and optional documents for your
-            application.
+            Upload and manage required and optional documents for your application.
+            Ensure all required items are submitted and approved.
           </SheetDescription>
         </SheetHeader>
 
-        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <!-- Progress Summary -->
-          <div class="mb-6 p-4 rounded-lg border bg-muted/50">
+          <div class="p-4 rounded-lg border bg-muted/50">
             <div class="flex items-center justify-between mb-1">
               <h3 class="text-sm font-medium">Required Documents Progress</h3>
               <Badge variant="outline"
@@ -1312,8 +1871,8 @@ watch(
           </div>
 
           <!-- Required Documents Accordion -->
-          <div class="space-y-1">
-            <h3 class="text-sm font-semibold text-foreground mb-2">
+          <div class="space-y-2">
+            <h3 class="text-base font-semibold text-foreground mb-2">
               Required Documents
             </h3>
             <Accordion type="single" collapsible class="w-full space-y-2">
@@ -1321,112 +1880,84 @@ watch(
                 v-for="docType in documentTypes.filter((d) => d.required)"
                 :key="docType.type"
                 :value="docType.type"
-                class="border rounded-md overflow-hidden"
+                class="border rounded-lg overflow-hidden shadow-sm bg-background hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors duration-150"
               >
                 <AccordionTrigger
-                  class="px-4 py-3 hover:bg-muted/50 text-sm font-medium [&[data-state=open]>div>svg]:rotate-180"
+                  class="px-4 py-3 text-sm font-medium w-full [&[data-state=open]>div>svg.trigger-icon]:rotate-180 hover:no-underline focus:no-underline"
                 >
-                  <div class="flex items-center justify-between w-full">
-                    <div class="flex items-center gap-2">
+                  <div class="flex items-center justify-between w-full gap-2">
+                    <div class="flex items-center gap-3 min-w-0">
                       <Icon
-                        :icon="
-                          hasDocument(docType.type)
-                            ? 'lucide:check-circle-2'
-                            : 'lucide:alert-circle'
-                        "
-                        :class="
-                          hasDocument(docType.type)
-                            ? 'text-success'
-                            : 'text-warning'
-                        "
-                        class="h-4 w-4 flex-shrink-0"
+                        :icon="getIconForDocType(docType)"
+                        :class="getColorForDocTypeStatus(docType)"
+                        class="h-6 w-6 flex-shrink-0 transition-colors duration-300"
                       />
-                      <span>{{ docType.label }}</span>
+                      <div class="text-left">
+                        <span class="font-semibold text-foreground">{{ docType.label }}</span>
+                        <p v-if="docType.requires_semester && scholarSemesterInfo?.type" class="text-xs text-muted-foreground">
+                          <Icon icon="lucide:calendar-days" class="inline-block h-3 w-3 mr-0.5"/> Semester-specific uploads
+                        </p>
+                      </div>
                     </div>
-                    <Icon
-                      icon="lucide:chevron-down"
-                      class="h-4 w-4 shrink-0 transition-transform duration-200"
-                    />
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <Badge v-if="getDocumentStatusInfo(docType).text" :variant="getDocumentStatusInfo(docType).variant" size="sm">
+                            {{ getDocumentStatusInfo(docType).text }}
+                        </Badge>
+                        <Icon
+                            icon="lucide:chevron-down"
+                            class="h-4 w-4 shrink-0 transition-transform duration-200 trigger-icon text-muted-foreground"
+                        />
+                    </div>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent class="px-4 pt-0 pb-4 bg-muted/30">
-                  <p
-                    class="text-xs text-muted-foreground mb-3 pt-2 border-t border-dashed"
-                  >
+                <AccordionContent class="px-4 pt-2 pb-4 bg-muted/50 dark:bg-muted/20 border-t">
+                  <p class="text-xs text-muted-foreground mb-3">
                     {{ docType.description }}
                   </p>
 
-                  <div
-                    v-if="hasDocument(docType.type)"
-                    class="mb-3 text-xs p-2 bg-green-50 border border-green-200 rounded-md"
-                  >
-                    <div
-                      class="flex items-center justify-between font-medium text-green-800"
-                    >
-                      <span>File Uploaded</span>
-                      <Badge
-                        size="sm"
-                        :variant="
-                          documents.find((d) => d.type === docType.type)
-                            ?.status === 'approved'
-                            ? 'success'
-                            : 'secondary'
-                        "
-                      >
-                        {{
-                          documents.find((d) => d.type === docType.type)
-                            ?.status || "Pending"
-                        }}
-                      </Badge>
-                    </div>
-                    <p class="text-green-700 mt-0.5">
-                      On:
-                      {{
-                        formatDate(
-                          documents.find((d) => d.type === docType.type)
-                            ?.created_at,
-                        )
-                      }}
+                  <div v-if="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)" class="mb-3 text-xs p-3 rounded-md border"
+                    :class="{
+                        'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30 text-green-700 dark:text-green-300': getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'approved',
+                        'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-300': getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) && getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status !== 'approved' && getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status !== 'rejected',
+                        'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-300': getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'rejected',
+                    }">
+                    <p class="font-medium mb-0.5 break-all">
+                        <Icon icon="lucide:paperclip" class="inline-block mr-1 h-3 w-3" />
+                        Filename: {{ getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.original_name || 'N/A' }}
+                    </p>
+                    <p>Uploaded: {{ formatDate(getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.created_at) }}</p>
+                    <p v-if="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.notes" class="mt-1 pt-1 border-t border-dashed">
+                        Admin Notes: {{ getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.notes }}
                     </p>
                   </div>
 
                   <Button
-                    variant="outline"
+                    :variant="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) ? 'outline' : 'default'"
                     size="sm"
+                    class="w-full sm:w-auto"
                     @click="openFileUpload(docType.type)"
-                    :disabled="
-                      uploadingFile && currentDocumentType === docType.type
-                    "
+                    :disabled="uploadingFile && currentDocumentType === docType.type"
                   >
                     <Icon
-                      v-if="
-                        uploadingFile && currentDocumentType === docType.type
-                      "
+                      v-if="uploadingFile && currentDocumentType === docType.type"
                       icon="lucide:loader-2"
                       class="mr-1.5 h-4 w-4 animate-spin"
                     />
                     <Icon
-                      v-else-if="hasDocument(docType.type)"
-                      icon="lucide:replace"
-                      class="mr-1.5 h-4 w-4"
-                    />
-                    <Icon
                       v-else
-                      icon="lucide:upload-cloud"
+                      :icon="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) ? (getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'rejected' ? 'lucide:upload-cloud' : 'lucide:replace') : 'lucide:upload-cloud'"
                       class="mr-1.5 h-4 w-4"
                     />
-                    {{
-                      hasDocument(docType.type) ? "Replace File" : "Upload File"
-                    }}
+                    {{ getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) ? (getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'rejected' ? 'Re-upload' : 'Replace File') : 'Upload File' }}
                   </Button>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </div>
 
-          <!-- Optional Documents Accordion -->
-          <div class="space-y-1">
-            <h3 class="text-sm font-semibold text-foreground mb-2">
+          <!-- Optional Documents Accordion (similar styling changes) -->
+          <div class="space-y-2">
+            <h3 class="text-base font-semibold text-foreground mb-2">
               Optional Documents
             </h3>
             <Accordion type="single" collapsible class="w-full space-y-2">
@@ -1434,108 +1965,70 @@ watch(
                 v-for="docType in documentTypes.filter((d) => !d.required)"
                 :key="docType.type"
                 :value="docType.type"
-                class="border rounded-md overflow-hidden"
+                class="border rounded-lg overflow-hidden shadow-sm bg-background hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors duration-150"
               >
                 <AccordionTrigger
-                  class="px-4 py-3 hover:bg-muted/50 text-sm font-medium [&[data-state=open]>div>svg]:rotate-180"
+                   class="px-4 py-3 text-sm font-medium w-full [&[data-state=open]>div>svg.trigger-icon]:rotate-180 hover:no-underline focus:no-underline"
                 >
-                  <div class="flex items-center justify-between w-full">
-                    <div class="flex items-center gap-2">
-                      <Icon
-                        :icon="
-                          hasDocument(docType.type)
-                            ? 'lucide:check-circle'
-                            : 'lucide:info'
-                        "
-                        :class="
-                          hasDocument(docType.type)
-                            ? 'text-success'
-                            : 'text-muted-foreground'
-                        "
-                        class="h-4 w-4 flex-shrink-0"
-                      />
-                      <span>{{ docType.label }}</span>
-                      <Badge
-                        v-if="hasDocument(docType.type)"
-                        variant="success"
-                        size="sm"
-                        >Uploaded</Badge
-                      >
+                  <div class="flex items-center justify-between w-full gap-2">
+                     <div class="flex items-center gap-3 min-w-0">
+                        <Icon
+                            :icon="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) ? 'lucide:file-check-2' : 'lucide:file-plus-2'"
+                            :class="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) ? 'text-primary' : 'text-muted-foreground'"
+                            class="h-5 w-5 flex-shrink-0"
+                        />
+                        <span class="truncate">{{ docType.label }}</span>
                     </div>
-                    <Icon
-                      icon="lucide:chevron-down"
-                      class="h-4 w-4 shrink-0 transition-transform duration-200"
-                    />
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <Badge v-if="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)" :variant="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'approved' ? 'success' : (getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'rejected' ? 'destructive' : 'info')" size="sm">
+                             {{ getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status?.replace('_', ' ') || 'Uploaded' }}
+                        </Badge>
+                        <Badge v-else variant="outline" size="sm">Optional</Badge>
+                        <Icon
+                            icon="lucide:chevron-down"
+                            class="h-4 w-4 shrink-0 transition-transform duration-200 trigger-icon"
+                        />
+                    </div>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent class="px-4 pt-0 pb-4 bg-muted/30">
-                  <p
-                    class="text-xs text-muted-foreground mb-3 pt-2 border-t border-dashed"
-                  >
+                <AccordionContent class="px-4 pt-2 pb-4 bg-muted/50 dark:bg-muted/20 border-t">
+                  <p class="text-xs text-muted-foreground mb-3">
                     {{ docType.description }}
                   </p>
-                  <!-- Display info about uploaded optional doc -->
-                  <div
-                    v-if="hasDocument(docType.type)"
-                    class="mb-3 text-xs p-2 bg-blue-50 border border-blue-200 rounded-md"
-                  >
-                    <div
-                      class="flex items-center justify-between font-medium text-blue-800"
-                    >
-                      <span>File Uploaded</span>
-                      <Badge
-                        size="sm"
-                        :variant="
-                          documents.find((d) => d.type === docType.type)
-                            ?.status === 'approved'
-                            ? 'success'
-                            : 'secondary'
-                        "
-                      >
-                        {{
-                          documents.find((d) => d.type === docType.type)
-                            ?.status || "Pending"
-                        }}
-                      </Badge>
+                    <div v-if="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)" class="mb-3 text-xs p-3 rounded-md border"
+                    :class="{
+                        'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30 text-green-700 dark:text-green-300': getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'approved',
+                        'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-300': getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) && getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status !== 'approved' && getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status !== 'rejected',
+                        'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-300': getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'rejected',
+                         'bg-gray-50 dark:bg-gray-500/10 border-gray-200 dark:border-gray-500/30 text-gray-700 dark:text-gray-300': !getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status, // Default for just uploaded
+                    }">
+                        <p class="font-medium mb-0.5 break-all">
+                            <Icon icon="lucide:paperclip" class="inline-block mr-1 h-3 w-3" />
+                            Filename: {{ getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.original_name || 'N/A' }}
+                        </p>
+                        <p>Uploaded: {{ formatDate(getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.created_at) }}</p>
+                         <p v-if="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.notes" class="mt-1 pt-1 border-t border-dashed">
+                            Admin Notes: {{ getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.notes }}
+                        </p>
                     </div>
-                    <p class="text-blue-700 mt-0.5">
-                      On:
-                      {{
-                        formatDate(
-                          documents.find((d) => d.type === docType.type)
-                            ?.created_at,
-                        )
-                      }}
-                    </p>
-                  </div>
                   <Button
-                    variant="outline"
+                    :variant="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) ? 'outline' : 'default'"
                     size="sm"
+                    class="w-full sm:w-auto"
                     @click="openFileUpload(docType.type)"
-                    :disabled="
-                      uploadingFile && currentDocumentType === docType.type
-                    "
+                    :disabled="uploadingFile && currentDocumentType === docType.type"
                   >
-                    <Icon
-                      v-if="
-                        uploadingFile && currentDocumentType === docType.type
-                      "
+                     <Icon
+                      v-if="uploadingFile && currentDocumentType === docType.type"
                       icon="lucide:loader-2"
-                      class="mr-1.5 h-4 w-4 animate-spin"
-                    />
-                    <Icon
-                      v-else-if="hasDocument(docType.type)"
-                      icon="lucide:replace"
-                      class="mr-1.5 h-4 w-4"
+                      class="mr-1.is_numeric(val) h-4 w-4 animate-spin"
                     />
                     <Icon
                       v-else
-                      icon="lucide:upload-cloud"
+                      :icon="getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) ? (getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'rejected' ? 'lucide:upload-cloud' : 'lucide:replace') : 'lucide:upload-cloud'"
                       class="mr-1.5 h-4 w-4"
                     />
-                    {{
-                      hasDocument(docType.type) ? "Replace File" : "Upload File"
-                    }}
+                    {{ getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year) ? (getDocumentByTypeAndSemester(docType.type, docType.semester_type, docType.semester_number, docType.academic_year)?.status === 'rejected' ? 'Re-upload Optional' : 'Replace Optional File') : 'Upload Optional File' }}
                   </Button>
                 </AccordionContent>
               </AccordionItem>
@@ -1583,7 +2076,62 @@ watch(
             @change="handleFileChange"
             accept=".pdf,.jpg,.jpeg,.png"
           />
+          <!-- Semester information will be collected in the UI before uploading -->
         </form>
+
+        <!-- Add a Semester Information Form Dialog -->
+        <Dialog v-model:open="showSemesterSelector">
+          <DialogContent class="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle class="flex items-center">
+                <Icon icon="lucide:calendar-days" class="h-5 w-5 mr-2 text-primary" />
+                Semester Information
+              </DialogTitle>
+              <DialogDescription>
+                Please select the semester this document belongs to.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div class="py-4 space-y-4">
+              <div class="space-y-2">
+                <Label for="semester-select">Academic Period</Label>
+                <Select v-model="selectedSemester">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select semester/trimester" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup v-for="(group, index) in semesterOptionsByYear" :key="index" :label="group.year">
+                      <SelectItem 
+                        v-for="option in group.options" 
+                        :key="`${option.value.academic_year}-${option.value.semester_number}`"
+                        :value="option.value"
+                      >
+                        {{ option.label }}
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <p class="text-xs text-muted-foreground mt-1">
+                  <Icon icon="lucide:info" class="h-3.5 w-3.5 inline mr-1" />
+                  {{ currentDocumentType ? currentDocumentType.replace(/_/g, ' ') : 'Document' }} for each semester/trimester is required.
+                </p>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button variant="outline" @click="showSemesterSelector = false">
+                Cancel
+              </Button>
+              <Button 
+                @click="confirmSemesterSelection"
+                :disabled="!selectedSemester"
+              >
+                <Icon icon="lucide:check" class="h-4 w-4 mr-1.5" />
+                Continue with Upload
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </SheetContent>
     </Sheet>
 

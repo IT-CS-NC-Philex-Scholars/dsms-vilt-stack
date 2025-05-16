@@ -1,18 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Widgets;
 
-use App\Filament\Resources\ScholarResource; // Assuming you have this resource
+use Filament\Tables; // Assuming you have this resource
 use App\Models\Scholar;
-use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Widgets\TableWidget as BaseWidget;
 use Illuminate\Support\Str;
+use App\Filament\Resources\ScholarResource;
+use Filament\Widgets\TableWidget as BaseWidget;
 
-class RecentScholarsTable extends BaseWidget
+final class RecentScholarsTable extends BaseWidget
 {
     protected static ?int $sort = 8;
-    protected int | string | array $columnSpan = 'full'; // Make it take full width
+
+    protected int|string|array $columnSpan = 'full'; // Make it take full width
 
     protected static ?string $heading = 'Recently Added Scholars';
 
@@ -35,8 +38,8 @@ class RecentScholarsTable extends BaseWidget
                     ->tooltip(fn (Scholar $record): string => $record->school?->name ?? '')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('type')
-                     ->formatStateUsing(fn (string $state): string => Str::of($state)->replace('_', ' ')->title())
-                     ->badge(),
+                    ->formatStateUsing(fn (string $state): string => Str::of($state)->replace('_', ' ')->title())
+                    ->badge(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Date Added')
                     ->dateTime()
@@ -51,6 +54,6 @@ class RecentScholarsTable extends BaseWidget
                     ->url(fn (Scholar $record): string => ScholarResource::getUrl('edit', ['record' => $record]))
                     ->openUrlInNewTab(),
             ])
-             ->emptyStateHeading('No scholars added recently.');
+            ->emptyStateHeading('No scholars added recently.');
     }
 }

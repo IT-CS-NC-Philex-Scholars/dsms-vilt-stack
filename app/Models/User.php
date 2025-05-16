@@ -12,18 +12,18 @@ use Laravel\Cashier\Subscription;
 use Laravel\Sanctum\HasApiTokens;
 use Database\Factories\UserFactory;
 use Laravel\Jetstream\HasProfilePhoto;
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\PersonalAccessToken;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Collection;
 use Laravel\Fortify\TwoFactorAuthenticatable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotificationCollection;
-use Spatie\Permission\Traits\HasRoles;
+
 use function Illuminate\Events\queueable;
 
 /**
@@ -97,8 +97,9 @@ final class User extends Authenticatable implements FilamentUser
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-    use HasRoles;
+
     use HasProfilePhoto;
+    use HasRoles;
     use HasTeams  {
         ownedTeams as public ownedTeamsBase;
     }
@@ -133,11 +134,11 @@ final class User extends Authenticatable implements FilamentUser
         'trial_ends_at',
     ];
 
-    public static function boot(): void
+    protected static function boot(): void
     {
         parent::boot();
-        //assign the role scholar to new users
-        User::created(function (User $user) {
+        // assign the role scholar to new users
+        self::created(function (User $user): void {
             $user->assignRole('User');
         });
     }
@@ -155,6 +156,7 @@ final class User extends Authenticatable implements FilamentUser
     /**
      * Get the Oauth Connections for the user.
      *`
+     *
      * @return HasMany<OauthConnection, covariant $this>
      */
     public function oauthConnections(): HasMany
@@ -165,10 +167,46 @@ final class User extends Authenticatable implements FilamentUser
     /**
      * Configure the panel access.
      */
-     public function canAccessPanel(Panel $panel): bool
-     {
-         return $this->hasRole('super_admin') || $this->hasRole('Admin');
-     }
+    public function canAccessPanel(Panel $panel): bool
+    {
+        if ($this->hasRole('super_admin')) {
+            return true;
+        }
+        return $this->hasRole('Admin');
+    }
+
+    /**
+     * Get the scholar associated with the user.
+     */
+    public function scholar()
+    {
+        return $this->hasOne(Scholar::class);
+    }
+
+    /**
+     * Get all applications submitted by the user.
+     */
+    public function applications(): HasMany // Changed from hasOne
+    {
+        return $this->hasMany(Application::class);
+    }
+
+    /**
+     * Determine if the user is a scholar
+     */
+    public function isScholar(): bool
+    {
+        return $this->hasRole('user');
+    }
+
+    /**
+     * Determine if the user has a role typically associated with applicants.
+     * Consider renaming the 'user' role to 'applicant' or 'scholar_applicant' for clarity.
+     */
+    public function isApplicant(): bool // Renamed for clarity
+    {
+        return $this->hasRole('User'); // Assumes 'User' role means applicant
+    }
 
     protected static function booted(): void
     {
@@ -191,35 +229,4 @@ final class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
         ];
     }
-    /**
-         * Get the scholar associated with the user.
-         */
-        public function scholar()
-        {
-            return $this->hasOne(Scholar::class);
-        }
-
-        /**
-          * Get all applications submitted by the user.
-          */
-         public function applications(): HasMany // Changed from hasOne
-         {
-             return $this->hasMany(Application::class);
-         }
-
-        /**
-         * Determine if the user is a scholar
-         */
-        public function isScholar()
-        {
-            return $this->hasRole('user');
-        }
-        /**
-             * Determine if the user has a role typically associated with applicants.
-             * Consider renaming the 'user' role to 'applicant' or 'scholar_applicant' for clarity.
-             */
-            public function isApplicant(): bool // Renamed for clarity
-            {
-                return $this->hasRole('User'); // Assumes 'User' role means applicant
-            }
 }

@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory; // Optional: if using factories
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class PreQualification extends Model
+ // Optional: if using factories
+
+final class PreQualification extends Model
 {
     // use HasFactory; // Optional
 
@@ -40,13 +44,14 @@ class PreQualification extends Model
 
     // The eligibility check logic is now primarily in the Controller for the session flow.
     // This could be used if saving the model instance first.
-    public function checkEligibility()
+    public function checkEligibility(): bool
     {
         return $this->current_grade >= 80;
     }
 
     // Optional Relationship: If you want to link to the School model
-    public function school() {
+    public function school()
+    {
         return $this->belongsTo(School::class);
     }
 }

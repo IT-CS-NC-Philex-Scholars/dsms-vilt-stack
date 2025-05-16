@@ -1,12 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\ScholarResource\Pages;
 
-use App\Filament\Resources\ScholarResource;
-use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use App\Filament\Resources\ScholarResource;
 
-class ViewScholar extends ViewRecord
+final class ViewScholar extends ViewRecord
 {
     protected static string $resource = ScholarResource::class;
 }

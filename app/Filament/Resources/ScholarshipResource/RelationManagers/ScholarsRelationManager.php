@@ -1,22 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\ScholarshipResource\RelationManagers;
 
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use App\Models\Scholar;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\RequirementResource;
-use App\Filament\Resources\ScholarResource;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Requirement;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model;
+use App\Filament\Resources\RequirementResource;
+use Filament\Resources\RelationManagers\RelationManager;
 
-class ScholarsRelationManager extends RelationManager
+final class ScholarsRelationManager extends RelationManager
 {
     protected static string $relationship = 'scholars';
+
     protected static ?string $recordTitleAttribute = 'first_name';
 
     public function form(Form $form): Form
@@ -50,13 +52,11 @@ class ScholarsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('year_level'),
                 Tables\Columns\BadgeColumn::make('requirements_status')
                     ->label('Requirements')
-                    ->getStateUsing(function ($record) {
-                        return "{$record->completed_requirements}/{$record->total_requirements} Complete";
-                    })
+                    ->getStateUsing(fn($record): string => "{$record->completed_requirements}/{$record->total_requirements} Complete")
                     ->colors([
 
-                        'success' => fn($state) => preg_match('/^(\d+)\/\1/', $state),
-                        'warning' => fn($state) => true,
+                        'success' => fn ($state): int|false => preg_match('/^(\d+)\/\1/', (string) $state),
+                        'warning' => fn ($state): true => true,
                     ]),
             ])
             ->filters([
@@ -75,28 +75,26 @@ class ScholarsRelationManager extends RelationManager
                 Tables\Actions\AttachAction::make()
                     ->preloadRecordSelect()
                     ->recordSelectSearchColumns(['first_name', 'middle_name', 'last_name'])
-                    ->form(fn(Tables\Actions\AttachAction $action): array => [
+                    ->form(fn (Tables\Actions\AttachAction $action): array => [
                         Forms\Components\Select::make('recordId')
                             ->label('Scholar')
                             ->required()
                             ->searchable()
-                            ->getSearchResultsUsing(function (string $search) {
-                                return \App\Models\Scholar::query()
-                                    ->where('status', 'active')
-                                    ->where(function ($query) use ($search) {
-                                        $terms = explode(' ', $search);
-                                        foreach ($terms as $term) {
-                                            $query->where(function ($q) use ($term) {
-                                                $q->where('first_name', 'like', $term . '%')
-                                                    ->orWhere('middle_name', 'like', $term . '%')
-                                                    ->orWhere('last_name', 'like', $term . '%');
-                                            });
-                                        }
-                                    })
-                                    ->limit(10)
-                                    ->get()
-                                    ->pluck('full_name', 'id');
-                            })
+                            ->getSearchResultsUsing(fn(string $search) => Scholar::query()
+                                ->where('status', 'active')
+                                ->where(function ($query) use ($search): void {
+                                    $terms = explode(' ', $search);
+                                    foreach ($terms as $term) {
+                                        $query->where(function ($q) use ($term): void {
+                                            $q->where('first_name', 'like', $term.'%')
+                                                ->orWhere('middle_name', 'like', $term.'%')
+                                                ->orWhere('last_name', 'like', $term.'%');
+                                        });
+                                    }
+                                })
+                                ->limit(10)
+                                ->get()
+                                ->pluck('full_name', 'id'))
                             ->placeholder('Search scholars...'),
                         Forms\Components\Select::make('status')
                             ->options([
@@ -110,20 +108,20 @@ class ScholarsRelationManager extends RelationManager
                         Forms\Components\Textarea::make('remarks')
                             ->maxLength(255),
                     ])
-                    ->after(function ($data, $record) {
+                    ->after(function ($data, $record): void {
                         $scholarship = $this->getOwnerRecord();
                         $requirements = is_array($scholarship->requirements)
                             ? $scholarship->requirements
                             : json_decode($scholarship->requirements, true);
 
                         foreach ($requirements as $reqType) {
-                            \App\Models\Requirement::create([
+                            \App\Models\Requirement::query()->create([
                                 'scholar_id' => $record->id,
                                 'scholarship_id' => $scholarship->id,
                                 'document_type' => $reqType,
                                 'status' => 'pending',
                                 'file_path' => null,
-                                'submitted_at' => null
+                                'submitted_at' => null,
                             ]);
                         }
                     }),
@@ -131,55 +129,55 @@ class ScholarsRelationManager extends RelationManager
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DetachAction::make()
-                    ->before(function (Model $record) {
-                        $requirements = \App\Models\Requirement::where([
+                    ->before(function (Model $record): void {
+                        $requirements = \App\Models\Requirement::query()->where([
                             'scholar_id' => $record->id,
-                            'scholarship_id' => $this->getOwnerRecord()->id
+                            'scholarship_id' => $this->getOwnerRecord()->id,
                         ])->get();
 
                         foreach ($requirements as $requirement) {
                             $requirement->forceDelete();
                         }
                     }),
-                    Tables\Actions\Action::make('view_requirements')
-                        ->label('Requirements')
-                        ->icon('heroicon-o-document-text')
-                        ->modalHeading(fn (Model $record) => "Requirements for {$record->full_name}")
-                        ->modalDescription('View and manage scholarship requirements')
-                        ->modalContent(function (Model $record) {
-                            $requirements = \App\Models\Requirement::where([
-                                'scholar_id' => $record->id,
-                                'scholarship_id' => $this->getOwnerRecord()->id
-                            ])->get();
+                Tables\Actions\Action::make('view_requirements')
+                    ->label('Requirements')
+                    ->icon('heroicon-o-document-text')
+                    ->modalHeading(fn (Model $record): string => "Requirements for {$record->full_name}")
+                    ->modalDescription('View and manage scholarship requirements')
+                    ->modalContent(function (Model $record) {
+                        $requirements = \App\Models\Requirement::query()->where([
+                            'scholar_id' => $record->id,
+                            'scholarship_id' => $this->getOwnerRecord()->id,
+                        ])->get();
 
-                            return view('filament.modals.scholarship-requirements', [
-                                'requirements' => $requirements,
-                                'scholar' => $record,
-                                'scholarship' => $this->getOwnerRecord(),
-                            ]);
-                        })
-                        ->modalSubmitAction(false) // Remove default submit button
-                        ->slideOver()
-                        // ->modalCancelAction(fn (StaticAction $action) => $action->label('Close'))
-                        // ->extraModalFooterActions([
-                        //     Tables\Actions\Action::make('manage_requirements')
-                        //         ->label('Manage Requirements')
-                        //         ->icon('heroicon-m-pencil-square')
-                        //         ->url(fn (Model $record) => RequirementResource::getUrl('index', [
-                        //             'scholar_id' => $record->id,
-                        //             'scholarship_id' => $this->getOwnerRecord()->id,
-                        //         ]))
-                        //         ->openUrlInNewTab(),
-                        // ])
+                        return view('filament.modals.scholarship-requirements', [
+                            'requirements' => $requirements,
+                            'scholar' => $record,
+                            'scholarship' => $this->getOwnerRecord(),
+                        ]);
+                    })
+                    ->modalSubmitAction(false) // Remove default submit button
+                    ->slideOver(),
+                // ->modalCancelAction(fn (StaticAction $action) => $action->label('Close'))
+                // ->extraModalFooterActions([
+                //     Tables\Actions\Action::make('manage_requirements')
+                //         ->label('Manage Requirements')
+                //         ->icon('heroicon-m-pencil-square')
+                //         ->url(fn (Model $record) => RequirementResource::getUrl('index', [
+                //             'scholar_id' => $record->id,
+                //             'scholarship_id' => $this->getOwnerRecord()->id,
+                //         ]))
+                //         ->openUrlInNewTab(),
+                // ])
 
             ])
             ->bulkActions([
                 Tables\Actions\DetachBulkAction::make()
-                    ->before(function (Collection $records) {
+                    ->before(function (Collection $records): void {
                         foreach ($records as $record) {
-                            $requirements = \App\Models\Requirement::where([
+                            $requirements = \App\Models\Requirement::query()->where([
                                 'scholar_id' => $record->id,
-                                'scholarship_id' => $this->getOwnerRecord()->id
+                                'scholarship_id' => $this->getOwnerRecord()->id,
                             ])->get();
 
                             foreach ($requirements as $requirement) {

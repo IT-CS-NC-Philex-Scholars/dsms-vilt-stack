@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\RequirementResource\Pages;
 
-use App\Filament\Resources\RequirementResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use App\Filament\Resources\RequirementResource;
 
-class EditRequirement extends EditRecord
+final class EditRequirement extends EditRecord
 {
     protected static string $resource = RequirementResource::class;
 

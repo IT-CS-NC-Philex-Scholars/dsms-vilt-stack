@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
-class RoleSeeder extends Seeder
+final class RoleSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         // Create roles
         $admin = Role::create(['name' => 'admin']);

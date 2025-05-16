@@ -1,13 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Factories;
 
-use App\Models\Scholar;
-use App\Models\School;
 use App\Models\User;
+use App\Models\School;
+use App\Models\Scholar;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class ScholarFactory extends Factory
+final class ScholarFactory extends Factory
 {
     protected $model = Scholar::class;
 
@@ -35,48 +37,47 @@ class ScholarFactory extends Factory
             [
                 'type' => 'text',
                 'data' => [
-                    'label' => 'Father\'s Name',
-                    'value' => $this->faker->name('male')
-                ]
-            ],
-             [
-                'type' => 'text',
-                'data' => [
-                    'label' => 'Father\'s Occupation',
-                    'value' => $this->faker->jobTitle
-                ]
+                    'label' => "Father's Name",
+                    'value' => $this->faker->name('male'),
+                ],
             ],
             [
                 'type' => 'text',
                 'data' => [
-                    'label' => 'Mother\'s Name',
-                    'value' => $this->faker->name('female')
-                ]
+                    'label' => "Father's Occupation",
+                    'value' => $this->faker->jobTitle,
+                ],
             ],
-             [
+            [
                 'type' => 'text',
                 'data' => [
-                    'label' => 'Mother\'s Occupation',
-                    'value' => $this->faker->jobTitle
-                ]
+                    'label' => "Mother's Name",
+                    'value' => $this->faker->name('female'),
+                ],
+            ],
+            [
+                'type' => 'text',
+                'data' => [
+                    'label' => "Mother's Occupation",
+                    'value' => $this->faker->jobTitle,
+                ],
             ],
             [
                 'type' => 'number',
                 'data' => [
                     'label' => 'Number of Siblings',
-                    'value' => $this->faker->numberBetween(0, 8)
-                ]
+                    'value' => $this->faker->numberBetween(0, 8),
+                ],
             ],
             [
                 'type' => 'select',
                 'data' => [
                     'label' => 'Household Income Bracket',
                     'options' => ['Below 10k', '10k-20k', '20k-35k', '35k-50k', 'Above 50k'],
-                    'value' => $this->faker->randomElement(['Below 10k', '10k-20k', '20k-35k', '35k-50k', 'Above 50k'])
-                ]
-            ]
+                    'value' => $this->faker->randomElement(['Below 10k', '10k-20k', '20k-35k', '35k-50k', 'Above 50k']),
+                ],
+            ],
         ];
-
 
         return [
             'user_id' => User::query()->inRandomOrder()->first()->id,

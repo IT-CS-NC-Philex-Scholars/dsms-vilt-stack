@@ -1,17 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace App\Filament\Widgets;
 
-use App\Filament\Resources\RequirementResource; // If you have a resource
-use App\Models\Requirement;
-use Filament\Tables;
+use Filament\Tables; // If you have a resource
 use Filament\Tables\Table;
+use App\Models\Requirement;
+use App\Filament\Resources\RequirementResource;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Database\Eloquent\Builder;
 
-class PendingRequirementsTable extends BaseWidget
+final class PendingRequirementsTable extends BaseWidget
 {
     protected static ?int $sort = 4; // Controls order on dashboard
-    protected int | string | array $columnSpan = 'full'; // Take full width
+
+    protected int|string|array $columnSpan = 'full'; // Take full width
 
     public function table(Table $table): Table
     {
@@ -47,16 +50,16 @@ class PendingRequirementsTable extends BaseWidget
                     ->dateTime()
                     ->sortable(),
             ])
-             ->actions([
+            ->actions([
                 // Optional: Add a quick link to view/edit the requirement
                 Tables\Actions\Action::make('view')
                     ->label('View')
-                    ->icon('heroicon-m-eye')
-                    // ->url(fn (Requirement $record): string => RequirementResource::getUrl('edit', ['record' => $record])) // Adjust if you have a RequirementResource
-                    // Or a simpler view URL if no resource exists:
-                    // ->url(fn (Requirement $record): string => route('some.requirement.view.route', $record))
-             ])
-             ->emptyStateHeading('No pending requirements found')
-             ->description('Showing the latest requirements needing review.');
+                    ->icon('heroicon-m-eye'),
+                // ->url(fn (Requirement $record): string => RequirementResource::getUrl('edit', ['record' => $record])) // Adjust if you have a RequirementResource
+                // Or a simpler view URL if no resource exists:
+                // ->url(fn (Requirement $record): string => route('some.requirement.view.route', $record))
+            ])
+            ->emptyStateHeading('No pending requirements found')
+            ->description('Showing the latest requirements needing review.');
     }
 }

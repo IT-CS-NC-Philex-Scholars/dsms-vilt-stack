@@ -75,7 +75,7 @@ graph TD
         F{Authentication (Sanctum)}
     end
 
-    A <== Inertia.js ==> B
+    A <--> |Inertia.js| B
     B -- Requests/Props --> C
     C -- CRUD Ops --> D
     C -- Reads/Writes --> E
@@ -149,70 +149,318 @@ This roadmap outlines our planned features and development milestones. Status up
 
 ## 🚀 Getting Started
 
-Follow these steps to set up the PhilexScholar project locally for development.
+Follow these instructions to set up the PhilexScholar project for development and production environments.
 
 ### Prerequisites
 
-*   PHP >= 8.1
-*   Composer
-*   Node.js & NPM (or Yarn)
-*   SQLite 3 (or configure another database like MySQL/PostgreSQL in `.env`)
+* PHP >= 8.3
+* Composer
+* Node.js & NPM (or Yarn/Bun)
+* SQLite 3 (or another database of your choice)
+* Docker & Docker Compose (optional, for containerized setup)
 
-### Installation
+### Recommended Installation
 
-1.  **Clone the repository:**
+The quickest way to set up PhilexScholar is using the included setup script:
+
+```bash
+git clone [Your Repository Link Here] philexscholar
+cd philexscholar
+composer run-script setup
+```
+
+This script will:
+- Install Composer dependencies
+- Generate application key
+- Create SQLite database
+- Run migrations and seed the database
+- Install Node dependencies (using Bun)
+- Build frontend assets
+- Generate API documentation
+
+After running the setup script, start the development servers:
+```bash
+composer run-script dev
+```
+
+### Setting Up Filament Shield & Admin Access
+
+After installation, you need to set up Filament Shield permissions and create a super admin account:
+
+1. **Generate Shield permissions:**
+   ```bash
+   php artisan shield:generate --all
+   ```
+
+2. **Create a super admin account:**
+   ```bash
+   php artisan shield:super-admin
+   ```
+   
+   When prompted, select option `1` to create a new super admin user.
+
+### Alternative Installation Options
+
+<details>
+<summary><strong>Option 1: Traditional Setup</strong></summary>
+
+1. **Clone the repository:**
+   ```bash
+   git clone [Your Repository Link Here] philexscholar
+   cd philexscholar
+   ```
+
+2. **Install PHP dependencies:**
+   ```bash
+   composer install
+   ```
+
+3. **Install Node dependencies:**
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   bun install
+   ```
+
+4. **Configure Environment:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+   
+   Update the `.env` file with your database credentials and other necessary configurations.
+
+5. **Setup Database:**
+   ```bash
+   # For SQLite (default)
+   touch database/database.sqlite
+   
+   # Run migrations and seed the database
+   php artisan migrate --seed
+   ```
+
+6. **Build Frontend Assets:**
+   ```bash
+   npm run build
+   # or
+   yarn build
+   # or
+   bun run build
+   ```
+
+7. **Start Development Servers:**
+   ```bash
+   # Using the included development script
+   composer run-script dev
+   
+   # Or manually start the servers
+   php artisan serve
+   npm run dev
+   ```
+
+8. **Access the Application:** 
+   Open your browser and navigate to http://localhost:8000
+</details>
+
+<details>
+<summary><strong>Option 2: Laravel Sail (Docker)</strong></summary>
+
+[Laravel Sail](https://laravel.com/docs/11.x/sail) provides a lightweight command-line interface for interacting with Laravel's Docker environment.
+
+1. **Clone the repository:**
+   ```bash
+   git clone [Your Repository Link Here] philexscholar
+   cd philexscholar
+   ```
+
+2. **Copy environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Start Sail:**
+   ```bash
+   # If you have PHP installed locally
+   ./vendor/bin/sail up -d
+   
+   # If you don't have PHP installed locally
+   docker run --rm \
+       -u "$(id -u):$(id -g)" \
+       -v $(pwd):/var/www/html \
+       -w /var/www/html \
+       laravelsail/php83-composer:latest \
+       composer install --ignore-platform-reqs
+   
+   ./vendor/bin/sail up -d
+   ```
+
+4. **Generate application key:**
+   ```bash
+   ./vendor/bin/sail artisan key:generate
+   ```
+
+5. **Run migrations and seed the database:**
+   ```bash
+   ./vendor/bin/sail artisan migrate --seed
+   ```
+
+6. **Install and build frontend assets:**
+   ```bash
+   ./vendor/bin/sail npm install
+   ./vendor/bin/sail npm run build
+   ```
+
+7. **Access the application:**
+   Open your browser and navigate to http://localhost
+
+8. **Stop Sail when finished:**
+   ```bash
+   ./vendor/bin/sail down
+   ```
+</details>
+
+<details>
+<summary><strong>Option 3: Docker Compose</strong></summary>
+
+1. **Clone the repository:**
+   ```bash
+   git clone [Your Repository Link Here] philexscholar
+   cd philexscholar
+   ```
+
+2. **Copy environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Update environment variables:**
+   Set appropriate values in your `.env` file, particularly:
+   ```
+   APP_PORT=80
+   VITE_PORT=5173
+   WWWUSER=$(id -u)
+   WWWGROUP=$(id -g)
+   ```
+
+4. **Start the Docker containers:**
+   ```bash
+   docker-compose up -d
+   ```
+
+5. **Install dependencies inside the container:**
+   ```bash
+   docker-compose exec laravel.test composer install
+   docker-compose exec laravel.test npm install
+   ```
+
+6. **Generate application key:**
+   ```bash
+   docker-compose exec laravel.test php artisan key:generate
+   ```
+
+7. **Setup database:**
+   ```bash
+   docker-compose exec laravel.test touch database/database.sqlite
+   docker-compose exec laravel.test php artisan migrate --seed
+   ```
+
+8. **Build frontend assets:**
+   ```bash
+   docker-compose exec laravel.test npm run build
+   ```
+
+9. **Access the application:**
+   Open your browser and navigate to http://localhost
+
+10. **Stop containers when finished:**
     ```bash
-    git clone [Your Repository Link Here] philexscholar
-    cd philexscholar
+    docker-compose down
     ```
+</details>
 
-2.  **Install PHP dependencies:**
-    ```bash
-    composer install
-    ```
+<details>
+<summary><strong>Option 4: Quick Setup Script</strong></summary>
 
-3.  **Install Node dependencies:**
-    ```bash
-    npm install
-    # or yarn install
-    ```
+The project includes a setup script that handles most of the configuration automatically:
 
-4.  **Configure Environment:**
-    ```bash
-    cp .env.example .env
-    php artisan key:generate
-    ```
-    *   *Important:* Update the `.env` file with your database credentials (if not using SQLite) and any other necessary service keys (e.g., mail driver).
+```bash
+git clone [Your Repository Link Here] philexscholar
+cd philexscholar
+composer run-script setup
+```
 
-5.  **Setup Database:**
-    ```bash
-    # Create an empty sqlite file (if using SQLite)
-    touch database/database.sqlite
+This script will:
+- Install Composer dependencies
+- Generate application key
+- Create SQLite database
+- Run migrations and seed the database
+- Install Node dependencies
+- Build frontend assets
+- Generate API documentation
 
-    # Run database migrations
-    php artisan migrate
+After running the setup script, start the development servers:
+```bash
+composer run-script dev
+```
+</details>
 
-    # Optional: Seed database with initial/dummy data
-    # php artisan db:seed
-    ```
+### Post-Installation Configuration
 
-6.  **Build Frontend Assets:**
-    ```bash
-    npm run build
-    # or yarn build
-    ```
+1. **Configure Mail:**
+   Update your `.env` file with appropriate mail settings:
+   ```
+   MAIL_MAILER=smtp
+   MAIL_HOST=mailpit
+   MAIL_PORT=1025
+   MAIL_USERNAME=null
+   MAIL_PASSWORD=null
+   MAIL_ENCRYPTION=null
+   MAIL_FROM_ADDRESS="hello@example.com"
+   MAIL_FROM_NAME="${APP_NAME}"
+   ```
+   
+   When using Sail or Docker, the included Mailpit service is available at http://localhost:8025 for email testing.
 
-7.  **Start Development Servers:**
-    ```bash
-    # Start the Laravel development server (usually http://127.0.0.1:8000)
-    php artisan serve
+2. **Configure Additional Services:**
+   Update your `.env` file with configurations for any third-party services you want to use:
+   - Sentry for error tracking
+   - Cashier for payments
+   - Socialite for OAuth authentication
 
-    # Start the Vite frontend development server (for hot module replacement)
-    npm run dev
-    # or yarn dev
-    ```
+### Development Workflow
 
-8.  **Access the Application:** Open your browser and navigate to the address provided by `php artisan serve` (e.g., `http://localhost:8000`).
+1. **Start all development services:**
+   ```bash
+   # Using the included script
+   composer run-script dev
+   
+   # Or with Sail
+   ./vendor/bin/sail up
+   ./vendor/bin/sail npm run dev
+   ```
+
+2. **Code Formatting and Analysis:**
+   ```bash
+   # Format code
+   composer run-script format
+   
+   # Static analysis
+   composer run-script analyse
+   ```
+
+3. **Running Tests:**
+   ```bash
+   composer run-script test
+   ```
+
+4. **Documentation Generation:**
+   ```bash
+   php artisan scribe:generate
+   ```
+   
+   Access the API documentation at http://localhost:8000/docs
 
 ---
 
